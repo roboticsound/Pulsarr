@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pulsarr</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="theme.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <!-- JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+    <script type="text/javascript" src="../lib/jquery.spin.js"></script>
+
+</head>
+<body>
+    <div id="popup" class="container">
+        <div id="page">
+            <div id="spin"></div>
+            <div class="row internal-container">
+                <div class="col-xs-4" id="imagediv">
+                    <img id="image" class="img-responsive" src="">
+                </div>
+                <div class="col-xs-8">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h2 id="title"><span id="year"></span></h2>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p id="description"><span id="dotdotdot"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="options" class="options">
+            <div class="row internal-container">
+                <div class="col-xs-4 vcenter">
+                    <label class="textpadding">Monitored</label>
+                </div>
+                <div class="col-xs-8 vcenter">
+                    <input type="checkbox" id="monitored" checked data-toggle="toggle" data-offstyle="danger">
+                </div>
+            </div>
+            <div class="row internal-container">
+                <div class="col-xs-4 vcenter">
+                    <label class="textpadding">Profile</label>
+                </div>
+                <div class="col-xs-8 vcenter">
+                    <select id="profile" class="form-control x-profile"></select>
+                </div>
+            </div>
+        </div>
+        <div class="row internal-container">
+            <div class="col-md-2 col-xs-2">
+                <button id="config" type="button" class="button"><span><i class="fa fa-wrench" aria-hidden="true"></i></span></button>
+            </div>
+            <div id="btnAdd" class="col-md-10 col-xs-10">
+                <button id="add" type="button" class="button"><span><i class="fa fa-plus" aria-hidden="true"></i></span> Add Movie</button>
+            </div>
+        </div>
+        <div id="serverResponse" class="row internal-container hidden text-center">
+            <div class="col-xs-12 text-center">
+                <label id="spin"></label>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="popup.js"></script>
+</body>
+</html>

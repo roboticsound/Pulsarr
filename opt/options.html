@@ -1,0 +1,72 @@
+﻿﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Pulsarr Configuration</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../theme.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <!-- JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+    <script type="text/javascript" src="../lib/jquery.spin.js"></script>
+
+</head>
+<body>
+    <div id="popup" class="container-fluid">
+        <div id="spin"></div>
+        <div id="page">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h3>Host:</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <input type="text" id="host" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <h3>Port:</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <input type="text" id="port" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <h3>API Key:</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <input type="text" id="radarrapikey" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                </div>
+            </div>
+        </div>
+        <div class="row internal-container">
+            <div class="col-md-12 col-xs-12">
+                <button id="save" type="button" class="btn btn-primary btn-block"><span><i class="fa fa-plus" aria-hidden="true"></i></span> Save</button>
+            </div>
+        </div>
+        <div class="row internal-container">
+            <div class="text-center col-xs-12">
+                <label id="status"></label>
+            </div>
+        </div>
+    </div>
+    <script src="options.js"></script>
+</body>
+</html>

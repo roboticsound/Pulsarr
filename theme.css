@@ -1,0 +1,156 @@
+﻿﻿*{
+	box-sizing: border-box;
+}
+
+body{
+    margin:0px;
+	font-family: "open sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 12px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+}
+
+h2{
+	font-weight: 300;
+	font-size: 22px;
+	font-family: inherit;
+    line-height: 1.1;
+    color: #444444;
+    margin-top: 0px;
+}
+
+h3{
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+h4{
+    font-style: italic;
+    color: #aaaaaa;
+    font-size: 12px;
+    float: left;
+    margin: 0 0;
+    padding: 0 0;
+}
+
+p{
+	margin-bottom: 0px;
+}
+
+label{
+	margin-bottom: 0px;
+}
+
+h2 span{
+	font-style: italic;
+    color: #aaaaaa;
+}
+
+.series-poster{
+	width:100px;
+	display:block;
+}
+
+.container{
+	width: 350px;
+	margin: auto;
+}
+
+.internal-container{
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.button{
+	background: white;
+	padding: 8px 12px;
+	border-radius: 3px;
+	border: 0.1px solid #ADADAD;
+}
+
+.btn-danger.active{
+	background-color: #d9534f;
+	border-color: #d43f3a;
+}
+
+.button:hover {
+    background-color: #ADADAD;
+}
+
+.vcenter {
+     padding-top: auto;
+     padding-bottom: auto;
+}
+
+.container-fluid {
+     padding-bottom: 50px;
+}
+
+.textpadding {
+     padding-top: 7px;
+     padding-bottom: 7px;
+     font-weight: 400;
+     font-size: 14px;     
+}
+
+.form-custom {
+     position: relative;
+     vertical-align: top;
+     background-color: transparent; 
+}
+
+.bottom-space{
+    margin-bottom: 10px;
+}
+
+p.more{
+    display:none;
+}
+
+.dotbutton{
+    background: white;
+    padding: 0 0;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+    font-style: italic;
+    color: #aaaaaa;
+}
+
+#add{
+	width: 100%;
+}
+
+#page {
+    background-color: #ffffff;
+    padding: 10px;
+    color: #444444;
+    box-shadow: 0 0 10px 1px #aaaaaa;
+    border-radius: 3px;
+    background-clip: padding-box;
+    margin-top: 10px;
+}
+
+#imagediv{
+	padding-right: 0px;
+}
+
+.hidden{
+    display: none;
+}
+
+#serverResponse{
+    font-weight: 700;
+}
+
+#status{
+    height: 13px;
+}
+
+.unclickable{
+   pointer-events: none;
+   cursor: default;
+}
+
+
