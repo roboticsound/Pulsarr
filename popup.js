@@ -128,7 +128,7 @@ radarrExt = {
         },
 
         getApiUrl: function () {
-            return radarrExt.config.getHost() + ":" + radarrExt.config.getPort() + "/api/";
+            return radarrExt.config.getHost() + radarrExt.config.getPort() + "/api/";
         },
     },
 
