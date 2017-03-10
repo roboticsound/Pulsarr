@@ -5,6 +5,7 @@ var year = null;
 var description = null;
 var profileId = 1;
 var monitored = false;
+var minAvailId = "announced";
 
 document.addEventListener("DOMContentLoaded", function() {
     $("#popup").fadeTo("fast", 0.5);
@@ -85,6 +86,9 @@ $('#profile').on('change', function () {
     profileId = this.value;
 });
 
+$('#minAvail').on('change', function () {
+    minAvailId = this.value;
+});
 
 function getCurrentTabUrl(callback) {
     var queryInfo = {
@@ -204,15 +208,14 @@ radarrExt = {
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
                 radarrExt.popup.restoreSettings();
-            }
-            
+            }            
             $('body').changepanel();
 
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
 
             $('#add').on('click', function () {
-                radarrExt.addMovie(movie.text[0], profileId, monitored);
+                radarrExt.addMovie(movie.text[0], profileId, monitored, minAvailId);
             });
         },
 
@@ -221,9 +224,10 @@ radarrExt = {
             $("#serverResponse").removeClass("hidden");
         },
 
-        saveSettings:function(monitored, profileId){
+        saveSettings: function (monitored, qualityId, minAvail) {
             localStorage.setItem("monitored", monitored);
-            localStorage.setItem("profile", profileId);
+            localStorage.setItem("profile", qualityId);
+            localStorage.setItem("minAvail", minAvail);
         },
 
         restoreSettings:function(){
@@ -231,6 +235,10 @@ radarrExt = {
                 $('#monitored').bootstrapToggle('on');
             } else {
                 $('#monitored').bootstrapToggle('off');
+            };
+
+            if (localStorage.getItem("minAvail") != null) {
+                $('#minAvail').val(localStorage.getItem("minAvail"));
             };
         },
 
@@ -264,7 +272,7 @@ radarrExt = {
     },
 
 
-    addMovie: function (movie, qualityId, monitored) {
+    addMovie: function (movie, qualityId, monitored, minAvail) {
         $("#popup").toggleClass("unclickable");
         $("#popup").fadeTo("fast", 0.5);
         $("#serverResponse").removeClass("hidden");
@@ -288,11 +296,11 @@ radarrExt = {
                 "tmdbid": movie.tmdbId,
                 "rootFolderPath": response.text[0].path,
                 "monitored": monitored,
-                //"minimumAvailability": "announced"
+                "minimumAvailability": minAvail
             };
 
             radarrExt.server.post("movie", newMovie).then(function (response) {
-                radarrExt.popup.saveSettings(monitored, qualityId);
+                radarrExt.popup.saveSettings(monitored, qualityId, minAvail);
                 $("#popup").stop(true).fadeTo('fast', 1);
                 $('#serverResponse').text("Movie added to Radarr!");
                 $("#serverResponse").removeClass("hidden");

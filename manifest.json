@@ -3,7 +3,7 @@
 
   "name": "Pulsarr",
   "description": "Add movies to Radarr from IMDB",
-  "version": "1.0.2",
+  "version": "1.0.3",
   
   "icons": {
     "16": "/img/icons/pulsarr/16.png",
