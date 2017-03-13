@@ -124,7 +124,13 @@ radarrExt = {
         },
 
         getPort: function () {
-            return localStorage.getItem('port');
+            var savedPort = localStorage.getItem('port');
+
+            if (savedPort != "") {
+                return ":" + savedPort;
+            } else {
+                return "";
+            };
         },
 
         getApi: function () {

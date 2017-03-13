@@ -15,7 +15,7 @@ document.getElementById('save').addEventListener('click', function () {
     $("#page *").prop('disabled', true);
     $("#save").toggleClass("unclickable");
     readInputs();
-    url = host + port + "/api/system/status";
+    url = constructBaseUrl(host, port) + "/api/system/status";
 
     testApi(url).then(function (response) {
         saveConfig();
@@ -33,15 +33,16 @@ document.getElementById('save').addEventListener('click', function () {
 
 function readInputs() {
     host = httpHost(document.getElementById('host').value.trim());
-    var txtPort = document.getElementById('port').value.trim();
-
-    if (txtPort == "") {
-        port = "";
-    } else {
-        port = ":" + txtPort;
-    };
-
+    port = document.getElementById('port').value.trim();
     apikey = document.getElementById('radarrapikey').value.trim();
+}
+
+function constructBaseUrl(host, port) {
+    if (port == "") {
+        return httpHost(host);
+    } else {
+        return httpHost(host) + ":" + port;
+    };
 }
 
 
