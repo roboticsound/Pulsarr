@@ -88,10 +88,10 @@ h2 span{
 }
 
 .textpadding {
-     padding-top: 7px;
-     padding-bottom: 7px;
+     padding-top: 8px;
+     padding-bottom: 8px;
      font-weight: 400;
-     font-size: 14px;     
+     font-size: 14px;    
 }
 
 .form-custom {
@@ -118,6 +118,19 @@ p.more{
     color: #aaaaaa;
 }
 
+.icon-small{
+    font-size: 0.8em;
+}
+
+.hidden{
+    display: none;
+}
+
+.unclickable{
+   pointer-events: none;
+   cursor: default;
+}
+
 #add{
 	width: 100%;
 }
@@ -136,21 +149,12 @@ p.more{
 	padding-right: 0px;
 }
 
-.hidden{
-    display: none;
-}
-
 #serverResponse{
     font-weight: 700;
 }
 
 #status{
     height: 13px;
-}
-
-.unclickable{
-   pointer-events: none;
-   cursor: default;
 }
 
 

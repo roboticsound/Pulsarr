@@ -2,6 +2,13 @@ var host = "";
 var port = "";
 var apikey = "";
 
+$(document).ready(function(){
+    var tool_list = $('[data-toggle="tooltip"]');
+    for(var i = 0; i < tool_list.length; i++){
+        tool_list.eq(i).tooltip({title: "123", placement: "right", animation: true, delay: {show: 500, hide: 100}}); 
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
     restoreConfig();
     if (apikey == null) {
