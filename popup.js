@@ -1,3 +1,4 @@
+
 var apiUrl = null;
 var imagepath = null;
 var title = null;
@@ -220,8 +221,11 @@ radarrExt = {
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
 
-            $('#add').on('click', function () {
-                radarrExt.addMovie(movie.text[0], profileId, monitored, minAvailId);
+            $('#btnAdd').on('click', function () {
+                radarrExt.addMovie(movie.text[0], profileId, monitored, minAvailId, false);
+            });
+            $('#btnAddSearch').on('click', function () {
+                radarrExt.addMovie(movie.text[0], profileId, monitored, minAvailId, true);
             });
         },
 
@@ -278,7 +282,7 @@ radarrExt = {
     },
 
 
-    addMovie: function (movie, qualityId, monitored, minAvail) {
+    addMovie: function (movie, qualityId, monitored, minAvail, addSearch) {
         $("#popup").toggleClass("unclickable");
         $("#popup").fadeTo("fast", 0.5);
         $("#serverResponse").removeClass("hidden");
@@ -302,7 +306,10 @@ radarrExt = {
                 "tmdbid": movie.tmdbId,
                 "rootFolderPath": response.text[0].path,
                 "monitored": monitored,
-                "minimumAvailability": minAvail
+                "minimumAvailability": minAvail,
+                "addOptions": {
+                    "searchForMovie": addSearch
+                }
             };
 
             radarrExt.server.post("movie", newMovie).then(function (response) {
