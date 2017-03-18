@@ -2,6 +2,11 @@ var host = "";
 var port = "";
 var apikey = "";
 
+$('#chkAuth').on('change', function () {
+	$('#optAuth').toggleClass('hidden');
+});
+
+
 document.addEventListener('DOMContentLoaded', function () {
     restoreConfig();
     if (apikey == null) {
