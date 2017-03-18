@@ -182,6 +182,7 @@ radarrExt = {
                 var url = apiUrl + endpoint;
 
                 http.open("POST", url, true);
+                if (localStorage.getItem("auth") == "true") http.setRequestHeader("Authorization", "Basic " + radarrExt.config.getAuth());
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
 
                 http.onload = function () {
