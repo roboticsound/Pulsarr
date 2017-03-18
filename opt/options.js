@@ -1,9 +1,13 @@
 var host = "";
 var port = "";
 var apikey = "";
+var auth = false;
+var user = "";
+var password = "";
 
 $('#chkAuth').on('change', function () {
 	$('#optAuth').toggleClass('hidden');
+	auth = !auth;
 });
 
 
@@ -40,6 +44,10 @@ function readInputs() {
     host = httpHost(document.getElementById('host').value.trim());
     port = document.getElementById('port').value.trim();
     apikey = document.getElementById('radarrapikey').value.trim();
+    if (auth){
+    	user = document.getElementById('user').value.trim();
+    	password = document.getElementById('password').value.trim();
+    }
 }
 
 function constructBaseUrl(host, port) {
@@ -56,6 +64,7 @@ function testApi(url) {
         var http = new XMLHttpRequest();
 
         http.open("GET", url, true);
+        if (auth) http.setRequestHeader("Authorization", "Basic " + btoa(user + ":" + password));
         http.setRequestHeader("X-Api-Key", apikey);
 
         http.onload = function () {
@@ -93,6 +102,9 @@ function saveConfig() {
     localStorage.setItem("host", host);
     localStorage.setItem("port", port);
     localStorage.setItem("apikey", apikey);
+    localStorage.setItem("auth", auth);
+    localStorage.setItem("user", user);
+    localStorage.setItem("password", password);
     
     $("#status").text("Sucess! Configuration saved.");
     setTimeout(function () {
@@ -106,8 +118,16 @@ function restoreConfig() {
     host = localStorage.getItem("host");
     port = localStorage.getItem("port");
     apikey = localStorage.getItem("apikey");
+    auth = localStorage.getItem("auth") == "true";
+    user = localStorage.getItem("user");
+    password = localStorage.getItem("password");
 
     document.getElementById('host').value = host;
     document.getElementById('port').value = port;
     document.getElementById('radarrapikey').value = apikey;
+    $('#chkAuth').prop('checked', auth);
+    if (auth) $('#optAuth').removeClass('hidden');
+    document.getElementById('user').value = user;
+    document.getElementById('password').value = password;
+    
 }
