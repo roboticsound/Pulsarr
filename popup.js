@@ -91,6 +91,14 @@ $('#minAvail').on('change', function () {
     minAvailId = this.value;
 });
 
+$("#btnAddSearch").on('mouseover', function(){
+	$("#btnAdd").addClass('dualHover');
+});
+
+$("#btnAddSearch").on('mouseout', function(){
+	$("#btnAdd").removeClass('dualHover');
+});
+
 function getCurrentTabUrl(callback) {
     var queryInfo = {
         active: true,
