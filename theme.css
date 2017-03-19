@@ -82,6 +82,10 @@ h2 span{
 	background-color: #ADADAD;
 }
 
+.ctlRow{
+	padding-top: 15px;
+}
+
 .vcenter {
      padding-top: auto;
      padding-bottom: auto;
