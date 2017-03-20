@@ -5,7 +5,6 @@ var title = null;
 var year = null;
 var description = null;
 var monitored = false;
-var minAvailId = "announced";
 
 document.addEventListener("DOMContentLoaded", function() {
     $("#popup").fadeTo("fast", 0.5);
@@ -80,10 +79,6 @@ $("#monitored").change(function () {
     } else {
         monitored = false;
     }
-});
-
-$('#minAvail').on('change', function () {
-    minAvailId = this.value;
 });
 
 $("#btnAddSearch").on('mouseover', function(){
@@ -229,7 +224,7 @@ radarrExt = {
                 		movie.text[0], 
                 		$('#profile').val(), 
                 		monitored, 
-                		minAvailId, 
+                		$('#minAvail').val(), 
                 		false
                 );
             });
@@ -239,7 +234,7 @@ radarrExt = {
                 		movie.text[0], 
                 		$('#profile').val(),
                 		monitored, 
-                		minAvailId, 
+                		$('#minAvail').val(), 
                 		true
                 );
             });
@@ -263,10 +258,7 @@ radarrExt = {
                 $('#monitored').bootstrapToggle('off');
             };
 
-            if (localStorage.getItem("minAvail") != null) {
-            	minAvailId = localStorage.getItem("minAvail")
-                $('#minAvail').val(minAvailId);
-            };
+            if (localStorage.getItem("minAvail") != null) $('#minAvail').val(localStorage.getItem("minAvail"));
         },
 
         profilesById: function () {
