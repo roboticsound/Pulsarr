@@ -1,31 +1,26 @@
+"use strict";
 
-var imagepath = null;
-var title = null;
-var year = null;
+const noMovie = {
+	    "status": 404,
+	    "text": [
+	        {
+	            "images": [
+	                {
+	                    "coverType": "poster",
+	                    "url": "/img/black-hole-poster.jpg"
+	                }],
+	            "overview": "Oh no! Pulsarr has colapsed into a black hole. Please check your configuration and that you are on a valid IMDB movie page (not TV series).",
+	            "title": "Black Hole",
+	            "year": 404
+	        }
+	    ]
+	};
 
 document.addEventListener("DOMContentLoaded", function() {
     $("#popup").fadeTo("fast", 0.5);
     $("#spin").spin();
     $("#popup").addClass("unclickable");
 });
-
-
-const noMovie = {
-    "status": 404,
-    "text": [
-        {
-            "images": [
-                {
-                    "coverType": "poster",
-                    "url": "/img/black-hole-poster.jpg"
-                }],
-            "overview": "Oh no! Pulsarr has colapsed into a black hole. Please check your configuration and that you are on a valid IMDB movie page (not TV series).",
-            "title": "Black Hole",
-            "year": 404
-        }
-    ]
-};
-
 
 getCurrentTabUrl(function (url) {
     if (radarrExt.config.getHost() != null) {
@@ -39,11 +34,9 @@ getCurrentTabUrl(function (url) {
     });
 });
 
-jQuery.fn.changepanel = function () {
-    $('#image').attr("src", imagepath);
-    var innertitle = title + "<span> (" + year + ")</span>";
-    $('#title').html(innertitle);
-
+jQuery.fn.changepanel = function (movie) {
+    $('#image').attr("src", movie.images[0].url);
+    $('#title').html(movie.title + "<span> (" + movie.year + ")</span>");
     $('#description').each(function () {
         var content = $(this).html(),
             char = 140;
@@ -56,7 +49,6 @@ jQuery.fn.changepanel = function () {
             $(this).html(html);
         }
     });
-
     $("#dotdotdot").on('click', function () {
         var moreText = "(...)";
         var lessText = "(less)";
@@ -95,14 +87,13 @@ function extractIMDBID(url) {
     return (imdbid) ? imdbid[0].slice(1, 10) : null;
 }
 
-
-radarrExt = {
+var radarrExt = {
 
     config: {
         getRootPath: function () {
             return radarrExt.server.get("rootfolder", "").text[0].path;
         },
-
+        
         getHost: function () {
             return localStorage.getItem('host');
         },
@@ -137,7 +128,7 @@ radarrExt = {
 
                 http.onload = function () {
                     if (this.status === 200) {
-                        results = { "text": JSON.parse(http.responseText), "status": http.status };
+                        var results = { "text": JSON.parse(http.responseText), "status": http.status };
                         resolve(results);
                     }
                     else {
@@ -189,17 +180,12 @@ radarrExt = {
             $("#popup").stop(true).fadeTo('fast', 1);
             $("#popup").removeClass("unclickable");
             $("#spin").spin(false);
-
-
-            imagepath = movie.text[0].images[0].url;
-            title = movie.text[0].title;
-            year = movie.text[0].year;
             $('#description').html(movie.text[0].overview);
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
                 radarrExt.popup.restoreSettings();
             }            
-            $('body').changepanel();
+            $('body').changepanel(movie.text[0]);
 
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
@@ -263,7 +249,6 @@ radarrExt = {
         }
     },
 
-
     lookupMovie: function (imdbid) {
         radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid).then(function (response) {
             radarrExt.popup.init(response);
@@ -274,7 +259,6 @@ radarrExt = {
             radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).")
         })
     },
-
 
     addMovie: function (movie, qualityId, monitored, minAvail, addSearch) {
         $("#popup").toggleClass("unclickable");
@@ -327,6 +311,5 @@ radarrExt = {
             $("#popup").removeClass("unclickable");
         })
     },
-
 }
 
