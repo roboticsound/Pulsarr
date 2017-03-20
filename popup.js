@@ -4,7 +4,6 @@ var imagepath = null;
 var title = null;
 var year = null;
 var description = null;
-var profileId = 1;
 var monitored = false;
 var minAvailId = "announced";
 
@@ -81,10 +80,6 @@ $("#monitored").change(function () {
     } else {
         monitored = false;
     }
-});
-
-$('#profile').on('change', function () {
-    profileId = this.value;
 });
 
 $('#minAvail').on('change', function () {
@@ -230,10 +225,23 @@ radarrExt = {
             $("#buttons").removeClass("hidden");
 
             $('#btnAdd').on('click', function () {
-                radarrExt.addMovie(movie.text[0], profileId, monitored, minAvailId, false);
+                radarrExt.addMovie(
+                		movie.text[0], 
+                		$('#profile').val(), 
+                		monitored, 
+                		minAvailId, 
+                		false
+                );
             });
+            
             $('#btnAddSearch').on('click', function () {
-                radarrExt.addMovie(movie.text[0], profileId, monitored, minAvailId, true);
+                radarrExt.addMovie(
+                		movie.text[0], 
+                		$('#profile').val(),
+                		monitored, 
+                		minAvailId, 
+                		true
+                );
             });
         },
 
@@ -270,7 +278,6 @@ radarrExt = {
                         .text(profiles[i].name));
                 }
                 if (localStorage.getItem("profile") != null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
-                	profileId = localStorage.getItem("profile");
                     $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
                 };
             }).catch(function (error) {
