@@ -29,8 +29,7 @@ const noMovie = {
 
 getCurrentTabUrl(function (url) {
     if (radarrExt.config.getHost() != null) {
-        var imdb = extractIMDBID(url);
-        radarrExt.lookupMovie(imdb);
+        radarrExt.lookupMovie(extractIMDBID(url));
     } else {
         chrome.runtime.openOptionsPage();
     }
@@ -91,7 +90,7 @@ function getCurrentTabUrl(callback) {
 
 function extractIMDBID(url) {
     var regex = new RegExp("\/tt\\d{7}\/");
-    imdbid = regex.exec(url);
+    var imdbid = regex.exec(url);
 
     return (imdbid) ? imdbid[0].slice(1, 10) : null;
 }
