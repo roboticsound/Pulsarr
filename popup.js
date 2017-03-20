@@ -4,7 +4,6 @@ var imagepath = null;
 var title = null;
 var year = null;
 var description = null;
-var monitored = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     $("#popup").fadeTo("fast", 0.5);
@@ -72,14 +71,6 @@ jQuery.fn.changepanel = function () {
         $(".more").slideToggle();
     });
 };
-
-$("#monitored").change(function () {
-    if ($(this).prop("checked") == true) {
-        monitored = true;
-    } else {
-        monitored = false;
-    }
-});
 
 $("#btnAddSearch").on('mouseover', function(){
 	$("#btnAdd").addClass('dualHover');
@@ -223,7 +214,7 @@ radarrExt = {
                 radarrExt.addMovie(
                 		movie.text[0], 
                 		$('#profile').val(), 
-                		monitored, 
+                		$("#monitored").prop('checked'), 
                 		$('#minAvail').val(), 
                 		false
                 );
@@ -233,7 +224,7 @@ radarrExt = {
                 radarrExt.addMovie(
                 		movie.text[0], 
                 		$('#profile').val(),
-                		monitored, 
+                		$("#monitored").prop('checked'), 
                 		$('#minAvail').val(), 
                 		true
                 );
@@ -252,11 +243,11 @@ radarrExt = {
         },
 
         restoreSettings:function(){
-            if (localStorage.getItem("monitored") == "true") {
-                $('#monitored').bootstrapToggle('on');
-            } else {
-                $('#monitored').bootstrapToggle('off');
-            };
+        	if (localStorage.getItem("monitored") == "true"){
+        		$('#monitored').bootstrapToggle('on');
+        	} else {
+        		$('#monitored').bootstrapToggle('off');
+        	};
 
             if (localStorage.getItem("minAvail") != null) $('#minAvail').val(localStorage.getItem("minAvail"));
         },
