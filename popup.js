@@ -1,9 +1,7 @@
 
-var apiUrl = null;
 var imagepath = null;
 var title = null;
 var year = null;
-var description = null;
 
 document.addEventListener("DOMContentLoaded", function() {
     $("#popup").fadeTo("fast", 0.5);
@@ -31,8 +29,6 @@ const noMovie = {
 
 getCurrentTabUrl(function (url) {
     if (radarrExt.config.getHost() != null) {
-        apiUrl = radarrExt.config.getApiUrl();
-
         var imdb = extractIMDBID(url);
         radarrExt.lookupMovie(imdb);
     } else {
@@ -48,7 +44,6 @@ jQuery.fn.changepanel = function () {
     $('#image').attr("src", imagepath);
     var innertitle = title + "<span> (" + year + ")</span>";
     $('#title').html(innertitle);
-    $('#description').html(description);
 
     $('#description').each(function () {
         var content = $(this).html(),
@@ -136,7 +131,7 @@ radarrExt = {
         get: function (endpoint, params) {
             return new Promise(function (resolve, reject) {
                 var http = new XMLHttpRequest();
-                var url = apiUrl + endpoint + "?" + params;
+                var url = radarrExt.config.getApiUrl() + endpoint + "?" + params;
 
                 http.open("GET", url, true);
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
@@ -164,7 +159,7 @@ radarrExt = {
         post: function (endpoint, params) {
             return new Promise(function (resolve, reject) {
                 var http = new XMLHttpRequest();
-                var url = apiUrl + endpoint;
+                var url = radarrExt.config.getApiUrl() + endpoint;
 
                 http.open("POST", url, true);
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
@@ -200,7 +195,7 @@ radarrExt = {
             imagepath = movie.text[0].images[0].url;
             title = movie.text[0].title;
             year = movie.text[0].year;
-            description = movie.text[0].overview;
+            $('#description').html(movie.text[0].overview);
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
                 radarrExt.popup.restoreSettings();
