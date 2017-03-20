@@ -256,7 +256,8 @@ radarrExt = {
             };
 
             if (localStorage.getItem("minAvail") != null) {
-                $('#minAvail').val(localStorage.getItem("minAvail"));
+            	minAvailId = localStorage.getItem("minAvail")
+                $('#minAvail').val(minAvailId);
             };
         },
 
@@ -269,6 +270,7 @@ radarrExt = {
                         .text(profiles[i].name));
                 }
                 if (localStorage.getItem("profile") != null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
+                	profileId = localStorage.getItem("profile");
                     $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
                 };
             }).catch(function (error) {
