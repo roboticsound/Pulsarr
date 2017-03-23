@@ -93,7 +93,7 @@ var radarrExt = {
         getRootPath: function () {
             return radarrExt.server.get("rootfolder", "").text[0].path;
         },
-        
+
         getHost: function () {
             return localStorage.getItem('host');
         },
@@ -156,7 +156,7 @@ var radarrExt = {
 
                 http.onload = function () {
                     if (this.status === 201) {
-                        results = { "text": JSON.parse(http.responseText), "status": http.status };
+                        var results = { "text": JSON.parse(http.responseText), "status": http.status };
                         resolve(results);
                     }
                     else {
@@ -184,7 +184,7 @@ var radarrExt = {
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
                 radarrExt.popup.restoreSettings();
-            }            
+            }
             $('body').changepanel(movie.text[0]);
 
             $("#options").removeClass("hidden");
@@ -192,20 +192,20 @@ var radarrExt = {
 
             $('#btnAdd').on('click', function () {
                 radarrExt.addMovie(
-                		movie.text[0], 
-                		$('#profile').val(), 
-                		$("#monitored").prop('checked'), 
-                		$('#minAvail').val(), 
+                		movie.text[0],
+                		$('#profile').val(),
+                		$("#monitored").prop('checked'),
+                		$('#minAvail').val(),
                 		false
                 );
             });
-            
+
             $('#btnAddSearch').on('click', function () {
                 radarrExt.addMovie(
-                		movie.text[0], 
+                		movie.text[0],
                 		$('#profile').val(),
-                		$("#monitored").prop('checked'), 
-                		$('#minAvail').val(), 
+                		$("#monitored").prop('checked'),
+                		$('#minAvail').val(),
                 		true
                 );
             });
@@ -312,4 +312,3 @@ var radarrExt = {
         })
     },
 }
-
