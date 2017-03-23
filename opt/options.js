@@ -91,6 +91,8 @@ function saveConfig() {
     localStorage.setItem("apikey", apikey);
 
     $("#status").text("Sucess! Configuration saved.");
+    $("#page *").prop('disabled', false);
+    $("#save").toggleClass("unclickable");
     setTimeout(function() {
         $("#status").text("");
         window.close();
