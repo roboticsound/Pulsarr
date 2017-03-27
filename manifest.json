@@ -4,7 +4,7 @@
   "name": "Pulsarr",
   "description": "Add movies to Radarr from IMDB",
   "version": "1.1.1",
-  
+
   "icons": {
     "16": "/img/icons/pulsarr/16.png",
     "32": "/img/icons/pulsarr/32.png",
@@ -36,6 +36,7 @@
 
   "permissions": [
     "activeTab",
+    "tabs",
     "declarativeContent",
     "https://ajax.googleapis.com/",
     "<all_urls>"

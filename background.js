@@ -14,8 +14,8 @@ chrome.runtime.onInstalled.addListener(function () {
               conditions: [
                 new chrome.declarativeContent.PageStateMatcher({
                     pageUrl: {
-                        urlContains: "//www.imdb.com/",
-                        urlMatches: '\/tt\\d{7}\/'
+                        //urlContains: "//www.imdb.com/",
+                        urlMatches: '\/\/www\.imdb.com\/.+\/tt\\d{7}\/'
                     },
                 })
               ],
@@ -24,4 +24,12 @@ chrome.runtime.onInstalled.addListener(function () {
             }
         ]);
     });
+});
+
+browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    if (tab.url.match(/\/\/www\.imdb.com\/.+\/tt\d{7}\//)) {
+        chrome.pageAction.show(tabId);
+    } else {
+        chrome.pageAction.hide(tabId);
+    }
 });
