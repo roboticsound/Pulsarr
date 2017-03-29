@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 getCurrentTabUrl(function (url) {
-    if (radarrExt.config.getHost() != null || radarrExt.config.getHost() != "") {
+    if (radarrExt.config.getHost() == null || radarrExt.config.getHost() == "") {
 				chrome.runtime.openOptionsPage();
     } else {
         radarrExt.lookupMovie(extractIMDBID(url));
