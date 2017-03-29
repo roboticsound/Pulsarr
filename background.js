@@ -1,3 +1,5 @@
+"use strict";
+
 function handlePageAction(tabInfo) {
   chrome.tabs.query({active:true,currentWindow:true},function(tabArray){
     if (tabArray[0].url.match(/\/\/www\.imdb.com\/.+\/tt\d{7}\//)) {
