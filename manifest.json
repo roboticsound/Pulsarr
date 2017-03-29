@@ -2,6 +2,7 @@
   "manifest_version": 2,
 
   "name": "Pulsarr",
+  "author": "roboticsound",
   "description": "Add movies to Radarr from IMDB",
   "version": "1.1.1",
 
