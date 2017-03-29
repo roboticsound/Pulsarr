@@ -37,7 +37,7 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "declarativeContent",
+    "webNavigation",
     "https://ajax.googleapis.com/",
     "<all_urls>"
   ]

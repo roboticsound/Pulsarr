@@ -12,4 +12,4 @@ function handlePageAction(tabInfo) {
 
 chrome.tabs.onActivated.addListener(handlePageAction);
 
-chrome.tabs.onUpdated.addListener(handlePageAction);
+chrome.webNavigation.onCommitted.addListener(handlePageAction);
