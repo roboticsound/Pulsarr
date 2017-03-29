@@ -23,10 +23,10 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 getCurrentTabUrl(function (url) {
-    if (radarrExt.config.getHost() != null) {
-        radarrExt.lookupMovie(extractIMDBID(url));
+    if (radarrExt.config.getHost() != null || radarrExt.config.getHost() != "") {
+				chrome.runtime.openOptionsPage();
     } else {
-        chrome.runtime.openOptionsPage();
+        radarrExt.lookupMovie(extractIMDBID(url));
     }
 
     $('#config').on('click', function () {
