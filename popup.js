@@ -249,6 +249,12 @@ var radarrExt = {
         }
     },
 
+    isExistingMovie: function (imdbid) {
+      radarrExt.server.get("movie", "").then(function (response) {
+        
+          // check if movie is already in collection
+    },
+
     lookupMovie: function (imdbid) {
         radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid).then(function (response) {
             radarrExt.popup.init(response);
