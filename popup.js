@@ -251,8 +251,12 @@ var radarrExt = {
 
     isExistingMovie: function (imdbid) {
       radarrExt.server.get("movie", "").then(function (response) {
-        
-          // check if movie is already in collection
+        for(var i = 0; i < response.text.length; i++){
+            if (imdbid == response.text[i].imdbId) {
+              return response.text[i].titleSlug;
+            };
+        };
+      });
     },
 
     lookupMovie: function (imdbid) {
