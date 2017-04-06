@@ -1,4 +1,4 @@
-//"use strict";
+"use strict";
 
 const noMovie = {
 	    "status": 404,
