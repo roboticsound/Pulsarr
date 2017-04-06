@@ -196,6 +196,11 @@ var radarrExt = {
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
 
+						$('#btnExists').on('click', function () {
+							chrome.tabs.create({url: radarrExt.config.getHost() + radarrExt.config.getPort() + "/movies/" + slug});
+							return false;
+						});
+
             $('#btnAdd').on('click', function () {
                 radarrExt.addMovie(
                 		movie.text[0],
@@ -276,7 +281,6 @@ var radarrExt = {
 			var existingSlug = radarrExt.isExistingMovie(imdbid);
 			var lookup = radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid);
 			Promise.all([lookup, existingSlug]).then(function(response) {
-				console.log(response);
 				radarrExt.popup.init(response[0], response[1]);
 			}).catch(function (error) {
 	            radarrExt.popup.init(noMovie);
