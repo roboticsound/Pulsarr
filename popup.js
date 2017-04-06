@@ -176,7 +176,7 @@ var radarrExt = {
     },
 
     popup: {
-        init: function (movie) {
+        init: function (movie, slug) {
             $("#popup").stop(true).fadeTo('fast', 1);
             $("#popup").removeClass("unclickable");
             $("#spin").spin(false);
@@ -187,8 +187,19 @@ var radarrExt = {
             }
             $('body').changepanel(movie.text[0]);
 
+						if (slug != "") {
+							$('#btnExists').removeClass('hidden');
+							$('#btnAdd').addClass('hidden');
+							$('#btnAddSearch').addClass('hidden');
+						}
+
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
+
+						$('#btnExists').on('click', function () {
+							chrome.tabs.create({url: radarrExt.config.getHost() + radarrExt.config.getPort() + "/movies/" + slug});
+							return false;
+						});
 
             $('#btnAdd').on('click', function () {
                 radarrExt.addMovie(
@@ -249,16 +260,35 @@ var radarrExt = {
         }
     },
 
-    lookupMovie: function (imdbid) {
-        radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid).then(function (response) {
-            radarrExt.popup.init(response);
-        }).catch(function (error) {
+    isExistingMovie: function (imdbid) {
+			return new Promise(function (resolve, reject) {
+	      radarrExt.server.get("movie", "").then(function (response) {
+	        for(var i = 0; i < response.text.length; i++){
+	            if (imdbid === response.text[i].imdbId) {
+	              resolve(response.text[i].titleSlug);
+	            };
+	        };
+					resolve("");
+	      }).catch(function (error) {
             radarrExt.popup.init(noMovie);
             $("#options").addClass("hidden");
             $("#btnAdd").addClass("hidden");
-            radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).")
-        })
-    },
+            radarrExt.popup.info(error)
+			});
+		})},
+
+		lookupMovie: function(imdbid) {
+			var existingSlug = radarrExt.isExistingMovie(imdbid);
+			var lookup = radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid);
+			Promise.all([lookup, existingSlug]).then(function(response) {
+				radarrExt.popup.init(response[0], response[1]);
+			}).catch(function (error) {
+	            radarrExt.popup.init(noMovie);
+	            $("#options").addClass("hidden");
+	            $("#btnAdd").addClass("hidden");
+	            radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).");
+	        });
+		},
 
     addMovie: function (movie, qualityId, monitored, minAvail, addSearch) {
         $("#popup").toggleClass("unclickable");
