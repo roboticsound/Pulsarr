@@ -1,11 +1,20 @@
-var apiUrl = null;
-var imagepath = null;
-var title = null;
-var year = null;
-var description = null;
-var profileId = 1;
-var monitored = false;
-var minAvailId = "announced";
+"use strict";
+
+const noMovie = {
+	    "status": 404,
+	    "text": [
+	        {
+	            "images": [
+	                {
+	                    "coverType": "poster",
+	                    "url": "/img/black-hole-poster.jpg"
+	                }],
+	            "overview": "Oh no! Pulsarr has colapsed into a black hole. Please check your configuration and that you are on a valid IMDB movie page (not TV series).",
+	            "title": "Black Hole",
+	            "year": 404
+	        }
+	    ]
+	};
 
 $(document).ready(function(){
     var tool_list = $('[data-toggle="tooltip"]');
@@ -20,32 +29,11 @@ document.addEventListener("DOMContentLoaded", function() {
     $("#popup").addClass("unclickable");
 });
 
-
-const noMovie = {
-    "status": 404,
-    "text": [
-        {
-            "images": [
-                {
-                    "coverType": "poster",
-                    "url": "/img/black-hole-poster.jpg"
-                }],
-            "overview": "Oh no! Pulsarr has colapsed into a black hole. Please check your configuration and that you are on a valid IMDB movie page (not TV series).",
-            "title": "Black Hole",
-            "year": 404
-        }
-    ]
-};
-
-
 getCurrentTabUrl(function (url) {
-    if (radarrExt.config.getHost() != null) {
-        apiUrl = radarrExt.config.getApiUrl();
-
-        var imdb = extractIMDBID(url);
-        radarrExt.lookupMovie(imdb);
+    if (radarrExt.config.getHost() == null || radarrExt.config.getHost() == "") {
+				chrome.runtime.openOptionsPage();
     } else {
-        chrome.runtime.openOptionsPage();
+        radarrExt.lookupMovie(extractIMDBID(url));
     }
 
     $('#config').on('click', function () {
@@ -53,12 +41,9 @@ getCurrentTabUrl(function (url) {
     });
 });
 
-jQuery.fn.changepanel = function () {
-    $('#image').attr("src", imagepath);
-    var innertitle = title + "<span> (" + year + ")</span>";
-    $('#title').html(innertitle);
-    $('#description').html(description);
-
+jQuery.fn.changepanel = function (movie) {
+    $('#image').attr("src", movie.images[0].url);
+    $('#title').html(movie.title + "<span> (" + movie.year + ")</span>");
     $('#description').each(function () {
         var content = $(this).html(),
             char = 140;
@@ -71,7 +56,6 @@ jQuery.fn.changepanel = function () {
             $(this).html(html);
         }
     });
-
     $("#dotdotdot").on('click', function () {
         var moreText = "(...)";
         var lessText = "(less)";
@@ -81,20 +65,12 @@ jQuery.fn.changepanel = function () {
     });
 };
 
-$("#monitored").change(function () {
-    if ($(this).prop("checked") == true) {
-        monitored = true;
-    } else {
-        monitored = false;
-    }
+$("#btnAddSearch").on('mouseover', function(){
+	$("#btnAdd").addClass('dualHover');
 });
 
-$('#profile').on('change', function () {
-    profileId = this.value;
-});
-
-$('#minAvail').on('change', function () {
-    minAvailId = this.value;
+$("#btnAddSearch").on('mouseout', function(){
+	$("#btnAdd").removeClass('dualHover');
 });
 
 function getCurrentTabUrl(callback) {
@@ -113,13 +89,12 @@ function getCurrentTabUrl(callback) {
 
 function extractIMDBID(url) {
     var regex = new RegExp("\/tt\\d{7}\/");
-    imdbid = regex.exec(url);
+    var imdbid = regex.exec(url);
 
     return (imdbid) ? imdbid[0].slice(1, 10) : null;
 }
 
-
-radarrExt = {
+var radarrExt = {
 
     config: {
         getRootPath: function () {
@@ -147,20 +122,25 @@ radarrExt = {
         getApiUrl: function () {
             return radarrExt.config.getHost() + radarrExt.config.getPort() + "/api/";
         },
+        
+        getAuth: function() {
+            return btoa(localStorage.getItem("user") + ":" + localStorage.getItem("password"));
+        }
     },
 
     server: {
         get: function (endpoint, params) {
             return new Promise(function (resolve, reject) {
                 var http = new XMLHttpRequest();
-                var url = apiUrl + endpoint + "?" + params;
+                var url = radarrExt.config.getApiUrl() + endpoint + "?" + params;
 
                 http.open("GET", url, true);
+                if (localStorage.getItem("auth") == "true") http.setRequestHeader("Authorization", "Basic " + radarrExt.config.getAuth());
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
 
                 http.onload = function () {
                     if (this.status === 200) {
-                        results = { "text": JSON.parse(http.responseText), "status": http.status };
+                        var results = { "text": JSON.parse(http.responseText), "status": http.status };
                         resolve(results);
                     }
                     else {
@@ -181,14 +161,15 @@ radarrExt = {
         post: function (endpoint, params) {
             return new Promise(function (resolve, reject) {
                 var http = new XMLHttpRequest();
-                var url = apiUrl + endpoint;
+                var url = radarrExt.config.getApiUrl() + endpoint;
 
                 http.open("POST", url, true);
+                if (localStorage.getItem("auth") == "true") http.setRequestHeader("Authorization", "Basic " + radarrExt.config.getAuth());
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
 
                 http.onload = function () {
                     if (this.status === 201) {
-                        results = { "text": JSON.parse(http.responseText), "status": http.status };
+                        var results = { "text": JSON.parse(http.responseText), "status": http.status };
                         resolve(results);
                     }
                     else {
@@ -208,27 +189,49 @@ radarrExt = {
     },
 
     popup: {
-        init: function (movie) {
+        init: function (movie, slug) {
             $("#popup").stop(true).fadeTo('fast', 1);
             $("#popup").removeClass("unclickable");
             $("#spin").spin(false);
-
-
-            imagepath = movie.text[0].images[0].url;
-            title = movie.text[0].title;
-            year = movie.text[0].year;
-            description = movie.text[0].overview;
+            $('#description').html(movie.text[0].overview);
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
                 radarrExt.popup.restoreSettings();
-            }            
-            $('body').changepanel();
+            }
+            $('body').changepanel(movie.text[0]);
+
+						if (slug != "") {
+							$('#btnExists').removeClass('hidden');
+							$('#btnAdd').addClass('hidden');
+							$('#btnAddSearch').addClass('hidden');
+						}
 
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
 
-            $('#add').on('click', function () {
-                radarrExt.addMovie(movie.text[0], profileId, monitored, minAvailId);
+						$('#btnExists').on('click', function () {
+							chrome.tabs.create({url: radarrExt.config.getHost() + radarrExt.config.getPort() + "/movies/" + slug});
+							return false;
+						});
+
+            $('#btnAdd').on('click', function () {
+                radarrExt.addMovie(
+                		movie.text[0],
+                		$('#profile').val(),
+                		$("#monitored").prop('checked'),
+                		$('#minAvail').val(),
+                		false
+                );
+            });
+
+            $('#btnAddSearch').on('click', function () {
+                radarrExt.addMovie(
+                		movie.text[0],
+                		$('#profile').val(),
+                		$("#monitored").prop('checked'),
+                		$('#minAvail').val(),
+                		true
+                );
             });
         },
 
@@ -244,15 +247,13 @@ radarrExt = {
         },
 
         restoreSettings:function(){
-            if (localStorage.getItem("monitored") == "true") {
-                $('#monitored').bootstrapToggle('on');
-            } else {
-                $('#monitored').bootstrapToggle('off');
-            };
+        	if (localStorage.getItem("monitored") == "true"){
+        		$('#monitored').bootstrapToggle('on');
+        	} else {
+        		$('#monitored').bootstrapToggle('off');
+        	};
 
-            if (localStorage.getItem("minAvail") != null) {
-                $('#minAvail').val(localStorage.getItem("minAvail"));
-            };
+            if (localStorage.getItem("minAvail") != null) $('#minAvail').val(localStorage.getItem("minAvail"));
         },
 
         profilesById: function () {
@@ -272,20 +273,37 @@ radarrExt = {
         }
     },
 
-
-    lookupMovie: function (imdbid) {
-        radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid).then(function (response) {
-            radarrExt.popup.init(response);
-        }).catch(function (error) {
+    isExistingMovie: function (imdbid) {
+			return new Promise(function (resolve, reject) {
+	      radarrExt.server.get("movie", "").then(function (response) {
+	        for(var i = 0; i < response.text.length; i++){
+	            if (imdbid === response.text[i].imdbId) {
+	              resolve(response.text[i].titleSlug);
+	            };
+	        };
+					resolve("");
+	      }).catch(function (error) {
             radarrExt.popup.init(noMovie);
             $("#options").addClass("hidden");
             $("#btnAdd").addClass("hidden");
-            radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).")
-        })
-    },
+            radarrExt.popup.info(error)
+			});
+		})},
 
+		lookupMovie: function(imdbid) {
+			var existingSlug = radarrExt.isExistingMovie(imdbid);
+			var lookup = radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid);
+			Promise.all([lookup, existingSlug]).then(function(response) {
+				radarrExt.popup.init(response[0], response[1]);
+			}).catch(function (error) {
+	            radarrExt.popup.init(noMovie);
+	            $("#options").addClass("hidden");
+	            $("#btnAdd").addClass("hidden");
+	            radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).");
+	        });
+		},
 
-    addMovie: function (movie, qualityId, monitored, minAvail) {
+    addMovie: function (movie, qualityId, monitored, minAvail, addSearch) {
         $("#popup").toggleClass("unclickable");
         $("#popup").fadeTo("fast", 0.5);
         $("#serverResponse").removeClass("hidden");
@@ -309,7 +327,10 @@ radarrExt = {
                 "tmdbid": movie.tmdbId,
                 "rootFolderPath": response.text[0].path,
                 "monitored": monitored,
-                "minimumAvailability": minAvail
+                "minimumAvailability": minAvail,
+                "addOptions": {
+                    "searchForMovie": addSearch
+                }
             };
 
             radarrExt.server.post("movie", newMovie).then(function (response) {
@@ -333,6 +354,4 @@ radarrExt = {
             $("#popup").removeClass("unclickable");
         })
     },
-
 }
-
