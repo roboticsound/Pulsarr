@@ -115,6 +115,10 @@ var radarrExt = {
         getApiUrl: function () {
             return radarrExt.config.getHost() + radarrExt.config.getPort() + "/api/";
         },
+        
+        getAuth: function() {
+            return btoa(localStorage.getItem("user") + ":" + localStorage.getItem("password"));
+        }
     },
 
     server: {
@@ -124,6 +128,7 @@ var radarrExt = {
                 var url = radarrExt.config.getApiUrl() + endpoint + "?" + params;
 
                 http.open("GET", url, true);
+                if (localStorage.getItem("auth") == "true") http.setRequestHeader("Authorization", "Basic " + radarrExt.config.getAuth());
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
 
                 http.onload = function () {
@@ -152,6 +157,7 @@ var radarrExt = {
                 var url = radarrExt.config.getApiUrl() + endpoint;
 
                 http.open("POST", url, true);
+                if (localStorage.getItem("auth") == "true") http.setRequestHeader("Authorization", "Basic " + radarrExt.config.getAuth());
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
 
                 http.onload = function () {
