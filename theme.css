@@ -99,13 +99,13 @@ h2 span{
      padding-top: 8px;
      padding-bottom: 8px;
      font-weight: 400;
-     font-size: 14px;    
+     font-size: 14px;
 }
 
 .form-custom {
      position: relative;
      vertical-align: top;
-     background-color: transparent; 
+     background-color: transparent;
 }
 
 .bottom-space{
@@ -127,7 +127,13 @@ p.more{
 }
 
 .icon-small{
-    font-size: 0.8em;
+		vertical-align: super;
+    font-size: 0.6em;
+}
+
+.icon-large{
+		vertical-align: super;
+    font-size: 1.2em;
 }
 
 .hidden{
@@ -164,5 +170,3 @@ p.more{
 #status{
     height: 13px;
 }
-
-
