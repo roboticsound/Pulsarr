@@ -16,7 +16,7 @@ const noMovie = {
 	    ]
 	};
 
-document.addEventListener("DOMContentLoaded", function() {
+$(document).ready(function(){
     $("#popup").fadeTo("fast", 0.5);
     $("#spin").spin();
     $("#popup").addClass("unclickable");
