@@ -16,7 +16,7 @@ const noMovie = {
 	    ]
 	};
 
-document.addEventListener("DOMContentLoaded", function() {
+$(document).ready(function(){
     $("#popup").fadeTo("fast", 0.5);
     $("#spin").spin();
     $("#popup").addClass("unclickable");
@@ -115,7 +115,7 @@ var radarrExt = {
         getApiUrl: function () {
             return radarrExt.config.getHost() + radarrExt.config.getPort() + "/api/";
         },
-        
+
         getAuth: function() {
             return btoa(localStorage.getItem("user") + ":" + localStorage.getItem("password"));
         }

@@ -96,16 +96,16 @@ h2 span{
 }
 
 .textpadding {
-     padding-top: 7px;
-     padding-bottom: 7px;
+     padding-top: 8px;
+     padding-bottom: 8px;
      font-weight: 400;
-     font-size: 14px;     
+     font-size: 14px;
 }
 
 .form-custom {
      position: relative;
      vertical-align: top;
-     background-color: transparent; 
+     background-color: transparent;
 }
 
 .bottom-space{
@@ -126,6 +126,25 @@ p.more{
     color: #aaaaaa;
 }
 
+.icon-small{
+		vertical-align: super;
+    font-size: 0.6em;
+}
+
+.icon-large{
+		vertical-align: super;
+    font-size: 1.2em;
+}
+
+.hidden{
+    display: none;
+}
+
+.unclickable{
+   pointer-events: none;
+   cursor: default;
+}
+
 #add{
 	width: 100%;
 }
@@ -144,10 +163,6 @@ p.more{
 	padding-right: 0px;
 }
 
-.hidden{
-    display: none;
-}
-
 #serverResponse{
     font-weight: 700;
 }
@@ -155,10 +170,3 @@ p.more{
 #status{
     height: 13px;
 }
-
-.unclickable{
-   pointer-events: none;
-   cursor: default;
-}
-
-
