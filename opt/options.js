@@ -1,3 +1,5 @@
+"use strict";
+
 var host = "";
 var port = "";
 var apikey = "";
@@ -11,26 +13,26 @@ $('#chkAuth').on('change', function () {
 });
 
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     restoreConfig();
     if (apikey == null) {
         $("#status").text("Before you can use Pulsarr, please enter the configuration from your Radarr server.");
     };
 });
 
-document.getElementById('save').addEventListener('click', function () {
+document.getElementById('save').addEventListener('click', function() {
     $("#popup").fadeTo("fast", 0.5);
     $("#spin").spin();
     $("#page *").prop('disabled', true);
     $("#save").toggleClass("unclickable");
     readInputs();
-    url = constructBaseUrl(host, port) + "/api/system/status";
+    var url = constructBaseUrl(host, port) + "/api/system/status";
 
-    testApi(url).then(function (response) {
+    testApi(url).then(function(response) {
         saveConfig();
         $("#popup").stop(true).fadeTo('fast', 1);
         $("#spin").spin(false);
-    }).catch(function (error) {
+    }).catch(function(error) {
         $("#status").text(error);
         $("#page *").prop('disabled', false);
         $("#save").toggleClass("unclickable");
@@ -60,23 +62,22 @@ function constructBaseUrl(host, port) {
 
 
 function testApi(url) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
         var http = new XMLHttpRequest();
 
         http.open("GET", url, true);
         if (auth) http.setRequestHeader("Authorization", "Basic " + btoa(user + ":" + password));
         http.setRequestHeader("X-Api-Key", apikey);
 
-        http.onload = function () {
+        http.onload = function() {
             if (this.status === 200) {
                 resolve(http.statusText);
-            }
-            else {
+            } else {
                 reject(Error(http.statusText));
             }
         };
 
-        http.onerror = function () {
+        http.onerror = function() {
             reject(Error("Unable to communicate with server. Please check host/port."));
         };
 
@@ -98,21 +99,23 @@ function httpHost(string) {
 }
 
 
-function saveConfig() {   
+function saveConfig() {
     localStorage.setItem("host", host);
     localStorage.setItem("port", port);
     localStorage.setItem("apikey", apikey);
     localStorage.setItem("auth", auth);
     localStorage.setItem("user", user);
     localStorage.setItem("password", password);
-    
+  
     $("#status").text("Sucess! Configuration saved.");
-    setTimeout(function () {
+    $("#page *").prop('disabled', false);
+    $("#save").toggleClass("unclickable");
+    setTimeout(function() {
         $("#status").text("");
         window.close();
     }, 1500);
 }
-    
+
 
 function restoreConfig() {
     host = localStorage.getItem("host");
