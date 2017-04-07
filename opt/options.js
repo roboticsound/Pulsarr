@@ -13,20 +13,17 @@ $('#chkAuth').on('change', function () {
 });
 
 $(document).ready(function(){
+		restoreConfig();
+		if (apikey == null) {
+				$("#status").text("Before you can use Pulsarr, please enter the configuration from your Radarr server.");
+		};
     var tool_list = $('[data-toggle="tooltip"]');
     for(var i = 0; i < tool_list.length; i++){
         tool_list.eq(i).tooltip({title: "123", placement: "right", animation: true, delay: {show: 500, hide: 100}});
     }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    restoreConfig();
-    if (apikey == null) {
-        $("#status").text("Before you can use Pulsarr, please enter the configuration from your Radarr server.");
-    };
-});
-
-document.getElementById('save').addEventListener('click', function() {
+$('#save').click(function() {
     $("#popup").fadeTo("fast", 0.5);
     $("#spin").spin();
     $("#page *").prop('disabled', true);
@@ -47,7 +44,6 @@ document.getElementById('save').addEventListener('click', function() {
     });
 });
 
-
 function readInputs() {
     host = httpHost(document.getElementById('host').value.trim());
     port = document.getElementById('port').value.trim();
@@ -65,7 +61,6 @@ function constructBaseUrl(host, port) {
         return httpHost(host) + ":" + port;
     };
 }
-
 
 function testApi(url) {
     return new Promise(function(resolve, reject) {
@@ -88,11 +83,8 @@ function testApi(url) {
         };
 
         http.send();
-
     });
-
 }
-
 
 function httpHost(string) {
     var regex = new RegExp("https{0,1}:\/\/");
@@ -103,7 +95,6 @@ function httpHost(string) {
         return "http://" + string;
     }
 }
-
 
 function saveConfig() {
     localStorage.setItem("host", host);
@@ -122,7 +113,6 @@ function saveConfig() {
     }, 1500);
 }
 
-
 function restoreConfig() {
     host = localStorage.getItem("host");
     port = localStorage.getItem("port");
@@ -131,12 +121,12 @@ function restoreConfig() {
     user = localStorage.getItem("user");
     password = localStorage.getItem("password");
 
-    document.getElementById('host').value = host;
-    document.getElementById('port').value = port;
-    document.getElementById('radarrapikey').value = apikey;
+		$('#host').val(host);
+		$('#port').val(port);
+		$('#radarrapikey').val(apikey);
+
     $('#chkAuth').prop('checked', auth);
     if (auth) $('#optAuth').removeClass('hidden');
-    document.getElementById('user').value = user;
-    document.getElementById('password').value = password;
-
+		$('#user').val(user);
+		$('#password').val(password);
 }
