@@ -6,6 +6,12 @@ var apikey = "";
 var auth = false;
 var user = "";
 var password = "";
+var tooltips = [
+	{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+];
 
 $('#chkAuth').on('change', function () {
 	$('#optAuth').toggleClass('hidden');
@@ -19,7 +25,7 @@ $(document).ready(function(){
 		};
     var tool_list = $('[data-toggle="tooltip"]');
     for(var i = 0; i < tool_list.length; i++){
-        tool_list.eq(i).tooltip({title: "123", placement: "right", animation: true, delay: {show: 500, hide: 100}});
+        tool_list.eq(i).tooltip(tooltips[i]);
     }
 });
 
