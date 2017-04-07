@@ -11,6 +11,7 @@ var tooltips = [
 	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 ];
 
 $('#chkAuth').on('change', function () {
