@@ -6,11 +6,13 @@ var apikey = "";
 var auth = false;
 var user = "";
 var password = "";
+var moviePath = "";
 var tooltips = [
 	{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 ];
 
 $('#chkAuth').on('change', function () {
@@ -57,7 +59,8 @@ function readInputs() {
     if (auth){
     	user = document.getElementById('user').value.trim();
     	password = document.getElementById('password').value.trim();
-    }
+    };
+		moviePath = document.getElementById('txtMoviePath').value.trim();
 }
 
 function constructBaseUrl(host, port) {
@@ -109,6 +112,7 @@ function saveConfig() {
     localStorage.setItem("auth", auth);
     localStorage.setItem("user", user);
     localStorage.setItem("password", password);
+		localStorage.setItem("moviePath", moviePath);
 
     $("#status").text("Sucess! Configuration saved.");
     $("#page *").prop('disabled', false);
@@ -126,6 +130,7 @@ function restoreConfig() {
     auth = localStorage.getItem("auth") == "true";
     user = localStorage.getItem("user");
     password = localStorage.getItem("password");
+		moviePath = localStorage.getItem("moviePath");
 
 		$('#host').val(host);
 		$('#port').val(port);
@@ -135,4 +140,5 @@ function restoreConfig() {
     if (auth) $('#optAuth').removeClass('hidden');
 		$('#user').val(user);
 		$('#password').val(password);
+		$('#txtMoviePath').val(moviePath);
 }
