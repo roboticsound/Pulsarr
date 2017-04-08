@@ -33,7 +33,7 @@
     "chrome_style": false
   },
 
-  "content_security_policy": "script-src 'self' https://gitcdn.github.io/ https://cdnjs.cloudflare.com/ https://maxcdn.bootstrapcdn.com https://ajax.googleapis.com/; object-src 'self'",
+  "content_security_policy": "script-src 'self'; object-src 'self'",
 
   "permissions": [
     "activeTab",
