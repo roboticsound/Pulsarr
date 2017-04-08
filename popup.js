@@ -1,43 +1,40 @@
 "use strict";
 
 const noMovie = {
-	    "status": 404,
-	    "text": [
-	        {
-	            "images": [
-	                {
-	                    "coverType": "poster",
-	                    "url": "/img/black-hole-poster.jpg"
-	                }],
-	            "overview": "Oh no! Pulsarr has colapsed into a black hole. Please check your configuration and that you are on a valid IMDB movie page (not TV series).",
-	            "title": "Black Hole",
-	            "year": 404
-	        }
-	    ]
-	};
+    "status": 404,
+    "text": [{
+        "images": [{
+            "coverType": "poster",
+            "url": "/img/black-hole-poster.jpg"
+        }],
+        "overview": "Oh no! Pulsarr has colapsed into a black hole. Please check your configuration and that you are on a valid IMDB movie page (not TV series).",
+        "title": "Black Hole",
+        "year": 404
+    }]
+};
 
-$(document).ready(function(){
+$(document).ready(function() {
     $("#popup").fadeTo("fast", 0.5);
     $("#spin").spin();
     $("#popup").addClass("unclickable");
 });
 
-getCurrentTabUrl(function (url) {
+getCurrentTabUrl(function(url) {
     if (radarrExt.config.getHost() == null || radarrExt.config.getHost() == "") {
-				chrome.runtime.openOptionsPage();
+        chrome.runtime.openOptionsPage();
     } else {
         radarrExt.lookupMovie(extractIMDBID(url));
     }
 
-    $('#config').on('click', function () {
+    $('#config').on('click', function() {
         chrome.runtime.openOptionsPage();
     });
 });
 
-jQuery.fn.changepanel = function (movie) {
+jQuery.fn.changepanel = function(movie) {
     $('#image').attr("src", movie.images[0].url);
     $('#title').html(movie.title + "<span> (" + movie.year + ")</span>");
-    $('#description').each(function () {
+    $('#description').each(function() {
         var content = $(this).html(),
             char = 140;
         if (content.length > char) {
@@ -49,7 +46,7 @@ jQuery.fn.changepanel = function (movie) {
             $(this).html(html);
         }
     });
-    $("#dotdotdot").on('click', function () {
+    $("#dotdotdot").on('click', function() {
         var moreText = "(...)";
         var lessText = "(less)";
         var $this = $(this);
@@ -58,12 +55,12 @@ jQuery.fn.changepanel = function (movie) {
     });
 };
 
-$("#btnAddSearch").on('mouseover', function(){
-	$("#btnAdd").addClass('dualHover');
+$("#btnAddSearch").on('mouseover', function() {
+    $("#btnAdd").addClass('dualHover');
 });
 
-$("#btnAddSearch").on('mouseout', function(){
-	$("#btnAdd").removeClass('dualHover');
+$("#btnAddSearch").on('mouseout', function() {
+    $("#btnAdd").removeClass('dualHover');
 });
 
 function getCurrentTabUrl(callback) {
@@ -72,7 +69,7 @@ function getCurrentTabUrl(callback) {
         currentWindow: true
     };
 
-    chrome.tabs.query(queryInfo, function (tabs) {
+    chrome.tabs.query(queryInfo, function(tabs) {
         var tab = tabs[0];
         var url = tab.url;
 
@@ -90,15 +87,15 @@ function extractIMDBID(url) {
 var radarrExt = {
 
     config: {
-        getRootPath: function () {
+        getRootPath: function() {
             return radarrExt.server.get("rootfolder", "").text[0].path;
         },
 
-        getHost: function () {
+        getHost: function() {
             return localStorage.getItem('host');
         },
 
-        getPort: function () {
+        getPort: function() {
             var savedPort = localStorage.getItem('port');
 
             if (savedPort != "") {
@@ -108,22 +105,34 @@ var radarrExt = {
             };
         },
 
-        getApi: function () {
+        getApi: function() {
             return localStorage.getItem('apikey');
         },
 
-        getApiUrl: function () {
+        getApiUrl: function() {
             return radarrExt.config.getHost() + radarrExt.config.getPort() + "/api/";
         },
 
         getAuth: function() {
             return btoa(localStorage.getItem("user") + ":" + localStorage.getItem("password"));
+        },
+
+        getMoviePath: function() {
+            return new Promise(function(resolve, reject) {
+                if (localStorage.getItem('moviePath') != "") {
+                    resolve(localStorage.getItem('moviePath'));
+                } else {
+                    radarrExt.server.get("rootfolder", "").then(function(response) {
+                        resolve(response.text[0].path);
+                    });
+                };
+            });
         }
     },
 
     server: {
-        get: function (endpoint, params) {
-            return new Promise(function (resolve, reject) {
+        get: function(endpoint, params) {
+            return new Promise(function(resolve, reject) {
                 var http = new XMLHttpRequest();
                 var url = radarrExt.config.getApiUrl() + endpoint + "?" + params;
 
@@ -131,17 +140,19 @@ var radarrExt = {
                 if (localStorage.getItem("auth") == "true") http.setRequestHeader("Authorization", "Basic " + radarrExt.config.getAuth());
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
 
-                http.onload = function () {
+                http.onload = function() {
                     if (this.status === 200) {
-                        var results = { "text": JSON.parse(http.responseText), "status": http.status };
+                        var results = {
+                            "text": JSON.parse(http.responseText),
+                            "status": http.status
+                        };
                         resolve(results);
-                    }
-                    else {
+                    } else {
                         reject(Error(http.statusText));
                     }
                 };
 
-                http.onerror = function () {
+                http.onerror = function() {
                     reject(Error("Network Error"));
                 };
 
@@ -151,8 +162,8 @@ var radarrExt = {
 
         },
 
-        post: function (endpoint, params) {
-            return new Promise(function (resolve, reject) {
+        post: function(endpoint, params) {
+            return new Promise(function(resolve, reject) {
                 var http = new XMLHttpRequest();
                 var url = radarrExt.config.getApiUrl() + endpoint;
 
@@ -160,17 +171,19 @@ var radarrExt = {
                 if (localStorage.getItem("auth") == "true") http.setRequestHeader("Authorization", "Basic " + radarrExt.config.getAuth());
                 http.setRequestHeader("X-Api-Key", radarrExt.config.getApi());
 
-                http.onload = function () {
+                http.onload = function() {
                     if (this.status === 201) {
-                        var results = { "text": JSON.parse(http.responseText), "status": http.status };
+                        var results = {
+                            "text": JSON.parse(http.responseText),
+                            "status": http.status
+                        };
                         resolve(results);
-                    }
-                    else {
+                    } else {
                         reject(Error(http.statusText));
                     }
                 };
 
-                http.onerror = function () {
+                http.onerror = function() {
                     console.log(http);
                     reject(Error("Network Error"));
                 };
@@ -182,7 +195,9 @@ var radarrExt = {
     },
 
     popup: {
-        init: function (movie, slug) {
+        init: function(movie, slug) {
+			var addPath;
+			radarrExt.config.getMoviePath().then(function(response) {addPath = response});
             $("#popup").stop(true).fadeTo('fast', 1);
             $("#popup").removeClass("unclickable");
             $("#spin").spin(false);
@@ -193,158 +208,157 @@ var radarrExt = {
             }
             $('body').changepanel(movie.text[0]);
 
-						if (slug != "") {
-							$('#btnExists').removeClass('hidden');
-							$('#btnAdd').addClass('hidden');
-							$('#btnAddSearch').addClass('hidden');
-						}
+            if (slug != "") {
+                $('#btnExists').removeClass('hidden');
+                $('#btnAdd').addClass('hidden');
+                $('#btnAddSearch').addClass('hidden');
+            }
 
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
 
-						$('#btnExists').on('click', function () {
-							chrome.tabs.create({url: radarrExt.config.getHost() + radarrExt.config.getPort() + "/movies/" + slug});
-							return false;
-						});
+            $('#btnExists').on('click', function() {
+                chrome.tabs.create({
+                    url: radarrExt.config.getHost() + radarrExt.config.getPort() + "/movies/" + slug
+                });
+                return false;
+            });
 
-            $('#btnAdd').on('click', function () {
+            $('#btnAdd').on('click', function() {
                 radarrExt.addMovie(
-                		movie.text[0],
-                		$('#profile').val(),
-                		$("#monitored").prop('checked'),
-                		$('#minAvail').val(),
-                		false
+                    movie.text[0],
+                    $('#profile').val(),
+                    $("#monitored").prop('checked'),
+                    $('#minAvail').val(),
+                    false,
+					addPath
                 );
             });
 
-            $('#btnAddSearch').on('click', function () {
+            $('#btnAddSearch').on('click', function() {
                 radarrExt.addMovie(
-                		movie.text[0],
-                		$('#profile').val(),
-                		$("#monitored").prop('checked'),
-                		$('#minAvail').val(),
-                		true
+                    movie.text[0],
+                    $('#profile').val(),
+                    $("#monitored").prop('checked'),
+                    $('#minAvail').val(),
+                    true,
+					addPath
                 );
             });
         },
 
-        info: function(text){
+        info: function(text) {
             $('#serverResponse').text(text);
             $("#serverResponse").removeClass("hidden");
         },
 
-        saveSettings: function (monitored, qualityId, minAvail) {
+        saveSettings: function(monitored, qualityId, minAvail) {
             localStorage.setItem("monitored", monitored);
             localStorage.setItem("profile", qualityId);
             localStorage.setItem("minAvail", minAvail);
         },
 
-        restoreSettings:function(){
-        	if (localStorage.getItem("monitored") == "true"){
-        		$('#monitored').bootstrapToggle('on');
-        	} else {
-        		$('#monitored').bootstrapToggle('off');
-        	};
+        restoreSettings: function() {
+            if (localStorage.getItem("monitored") == "true") {
+                $('#monitored').bootstrapToggle('on');
+            } else {
+                $('#monitored').bootstrapToggle('off');
+            };
 
             if (localStorage.getItem("minAvail") != null) $('#minAvail').val(localStorage.getItem("minAvail"));
         },
 
-        profilesById: function () {
-            radarrExt.server.get("profile", "").then(function (response) {
+        profilesById: function() {
+            radarrExt.server.get("profile", "").then(function(response) {
                 var profiles = response.text;
                 for (var i = 0; i < profiles.length; i++) {
                     $('#profile')
-                        .append($('<option>', { value: profiles[i].id })
-                        .text(profiles[i].name));
+                        .append($('<option>', {
+                                value: profiles[i].id
+                            })
+                            .text(profiles[i].name));
                 }
                 if (localStorage.getItem("profile") != null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
                     $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
                 };
-            }).catch(function (error) {
+            }).catch(function(error) {
                 radarrExt.popup.info("profilesById Failed! " + error)
             });
         }
     },
 
-    isExistingMovie: function (imdbid) {
-			return new Promise(function (resolve, reject) {
-	      radarrExt.server.get("movie", "").then(function (response) {
-	        for(var i = 0; i < response.text.length; i++){
-	            if (imdbid === response.text[i].imdbId) {
-	              resolve(response.text[i].titleSlug);
-	            };
-	        };
-					resolve("");
-	      }).catch(function (error) {
+    isExistingMovie: function(imdbid) {
+        return new Promise(function(resolve, reject) {
+            radarrExt.server.get("movie", "").then(function(response) {
+                for (var i = 0; i < response.text.length; i++) {
+                    if (imdbid === response.text[i].imdbId) {
+                        resolve(response.text[i].titleSlug);
+                    };
+                };
+                resolve("");
+            }).catch(function(error) {
+                radarrExt.popup.init(noMovie);
+                $("#options").addClass("hidden");
+                $("#btnAdd").addClass("hidden");
+                radarrExt.popup.info(error)
+            });
+        })
+    },
+
+    lookupMovie: function(imdbid) {
+        var existingSlug = radarrExt.isExistingMovie(imdbid);
+        var lookup = radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid);
+        Promise.all([lookup, existingSlug]).then(function(response) {
+            radarrExt.popup.init(response[0], response[1]);
+        }).catch(function(error) {
             radarrExt.popup.init(noMovie);
             $("#options").addClass("hidden");
             $("#btnAdd").addClass("hidden");
-            radarrExt.popup.info(error)
-			});
-		})},
+            radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).");
+        });
+    },
 
-		lookupMovie: function(imdbid) {
-			var existingSlug = radarrExt.isExistingMovie(imdbid);
-			var lookup = radarrExt.server.get("movies/lookup", "term=imdbid%3A%20" + imdbid);
-			Promise.all([lookup, existingSlug]).then(function(response) {
-				radarrExt.popup.init(response[0], response[1]);
-			}).catch(function (error) {
-	            radarrExt.popup.init(noMovie);
-	            $("#options").addClass("hidden");
-	            $("#btnAdd").addClass("hidden");
-	            radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).");
-	        });
-		},
-
-    addMovie: function (movie, qualityId, monitored, minAvail, addSearch) {
+    addMovie: function(movie, qualityId, monitored, minAvail, addSearch, folderPath) {
         $("#popup").toggleClass("unclickable");
         $("#popup").fadeTo("fast", 0.5);
         $("#serverResponse").removeClass("hidden");
         $("#serverResponse").spin('large');
-        radarrExt.server.get("rootfolder", "").then(function (response) {
-            var newMovie = {
-                "title": movie.title,
-                "year": movie.year,
-                "qualityProfileId": qualityId,
-                "titleSlug": movie.titleSlug,
-                "images": [
-                  {
-                      "coverType": "poster",
-                      "url": null
-                  },
-                  {
-                      "coverType": "banner",
-                      "url": null
-                  }
-                ],
-                "tmdbid": movie.tmdbId,
-                "rootFolderPath": response.text[0].path,
-                "monitored": monitored,
-                "minimumAvailability": minAvail,
-                "addOptions": {
-                    "searchForMovie": addSearch
+        var newMovie = {
+            "title": movie.title,
+            "year": movie.year,
+            "qualityProfileId": qualityId,
+            "titleSlug": movie.titleSlug,
+            "images": [{
+                    "coverType": "poster",
+                    "url": null
+                },
+                {
+                    "coverType": "banner",
+                    "url": null
                 }
-            };
+            ],
+            "tmdbid": movie.tmdbId,
+            "rootFolderPath": folderPath,
+            "monitored": monitored,
+            "minimumAvailability": minAvail,
+            "addOptions": {
+                "searchForMovie": addSearch
+            }
+        };
 
-            radarrExt.server.post("movie", newMovie).then(function (response) {
-                radarrExt.popup.saveSettings(monitored, qualityId, minAvail);
-                $("#popup").stop(true).fadeTo('fast', 1);
-                $('#serverResponse').text("Movie added to Radarr!");
-                $("#serverResponse").removeClass("hidden");
-                setTimeout(function () {
-                    window.close();
-                }, 1500);
-                $("#popup").removeClass("unclickable");
-            }).catch(function (error) {
-                $("#popup").stop(true).fadeTo('fast', 1);
-                radarrExt.popup.info(error + ": Failed to add movie! Please check it is not already in your collection.");
-                $("#popup").toggleClass("unclickable");
-            });
-
-        }).catch(function (error) {
+        radarrExt.server.post("movie", newMovie).then(function(response) {
+            radarrExt.popup.saveSettings(monitored, qualityId, minAvail);
             $("#popup").stop(true).fadeTo('fast', 1);
-            radarrExt.popup.info(error + ": Failed to add movie! ");
+            $('#serverResponse').text("Movie added to Radarr!");
+            $("#serverResponse").removeClass("hidden");
+            setTimeout(function() {
+                window.close();
+            }, 1500);
             $("#popup").removeClass("unclickable");
-        })
+        }).catch(function(error) {
+            $("#popup").stop(true).fadeTo('fast', 1);
+            radarrExt.popup.info(error + ": Failed to add movie! Please check it is not already in your collection.");
+            $("#popup").toggleClass("unclickable");
+        });
     },
 }

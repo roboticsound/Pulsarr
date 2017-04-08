@@ -6,7 +6,7 @@ var apikey = "";
 var auth = false;
 var user = "";
 var password = "";
-var moviePath;
+var moviePath = "";
 var tooltips = [
 	{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
