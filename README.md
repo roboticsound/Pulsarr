@@ -8,7 +8,8 @@ Browser extension (currently Chrome) for adding movies to Radarr while browsing 
 
 - Add movies to [Radarr](https://radarr.video) while browsing IMDB pages.
 - Select quality profile, availability and whether to monitor the movie when added.
-- Checks if a movie is already in your collection and links to it's Radarr page
+- Checks if a movie is already in your collection and links to it's Radarr page.
+- Choose custom path for storing movies.
 
 ## Planned features
 
