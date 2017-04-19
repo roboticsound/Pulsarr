@@ -157,9 +157,7 @@ var radarrExt = {
                 };
 
                 http.send();
-
             });
-
         },
 
         post: function(endpoint, params) {
@@ -196,26 +194,26 @@ var radarrExt = {
 
     popup: {
         init: function(movie, slug) {
-			var addPath;
-			radarrExt.config.getMoviePath().then(function(response) {addPath = response});
-            $("#popup").stop(true).fadeTo('fast', 1);
-            $("#popup").removeClass("unclickable");
-            $("#spin").spin(false);
+            var addPath;
+  			    radarrExt.config.getMoviePath().then(function(response) {addPath = response});
             $('#description').html(movie.text[0].overview);
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
                 radarrExt.popup.restoreSettings();
-            }
+            };
             $('body').changepanel(movie.text[0]);
 
             if (slug != "") {
                 $('#btnExists').removeClass('hidden');
                 $('#btnAdd').addClass('hidden');
                 $('#btnAddSearch').addClass('hidden');
-            }
+            };
 
+            $("#popup").stop(true).fadeTo('fast', 1);
+            $("#popup").removeClass("unclickable");
             $("#options").removeClass("hidden");
             $("#buttons").removeClass("hidden");
+            $(".spinner").remove();
 
             $('#btnExists').on('click', function() {
                 chrome.tabs.create({
@@ -226,12 +224,12 @@ var radarrExt = {
 
             $('#btnAdd').on('click', function() {
                 radarrExt.addMovie(
-                    movie.text[0],
+                movie.text[0],
                     $('#profile').val(),
                     $("#monitored").prop('checked'),
                     $('#minAvail').val(),
                     false,
-					addPath
+                    addPath
                 );
             });
 
@@ -242,8 +240,8 @@ var radarrExt = {
                     $("#monitored").prop('checked'),
                     $('#minAvail').val(),
                     true,
-					addPath
-                );
+                    addPath
+                  );
             });
         },
 
@@ -273,11 +271,9 @@ var radarrExt = {
                 var profiles = response.text;
                 for (var i = 0; i < profiles.length; i++) {
                     $('#profile')
-                        .append($('<option>', {
-                                value: profiles[i].id
-                            })
-                            .text(profiles[i].name));
-                }
+                        .append($('<option>', { value: profiles[i].id })
+                        .text(profiles[i].name));
+                };
                 if (localStorage.getItem("profile") != null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
                     $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
                 };
@@ -328,7 +324,8 @@ var radarrExt = {
             "year": movie.year,
             "qualityProfileId": qualityId,
             "titleSlug": movie.titleSlug,
-            "images": [{
+            "images": [
+                {
                     "coverType": "poster",
                     "url": null
                 },

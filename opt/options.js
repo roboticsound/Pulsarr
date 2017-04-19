@@ -8,16 +8,16 @@ var user = "";
 var password = "";
 var moviePath = "";
 var tooltips = [
-	{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-	{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-	{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-	{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+		{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+		{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+		{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+		{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+		{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 ];
 
 $('#chkAuth').on('change', function () {
-	$('#optAuth').toggleClass('hidden');
-	auth = !auth;
+		$('#optAuth').toggleClass('hidden');
+		auth = !auth;
 });
 
 $(document).ready(function(){
@@ -57,8 +57,8 @@ function readInputs() {
     port = document.getElementById('port').value.trim();
     apikey = document.getElementById('radarrapikey').value.trim();
     if (auth){
-    	user = document.getElementById('user').value.trim();
-    	password = document.getElementById('password').value.trim();
+    		user = document.getElementById('user').value.trim();
+    		password = document.getElementById('password').value.trim();
     };
 		moviePath = document.getElementById('txtMoviePath').value.trim();
 }
