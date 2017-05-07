@@ -8,7 +8,7 @@ function handlePageAction(tabInfo) {
         chrome.pageAction.hide(tabInfo.tabId);
     }
   });
-}
+};
 
 chrome.tabs.onActivated.addListener(handlePageAction);
 
