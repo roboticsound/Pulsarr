@@ -22,9 +22,9 @@ $('#chkAuth').on('change', function () {
 
 $(document).ready(function(){
 		restoreConfig();
-		if (apikey === null) {
+		if (apikey == null) {
 				$("#status").text("Before you can use Pulsarr, please enter the configuration from your Radarr server.");
-		}
+		};
     var tool_list = $('[data-toggle="tooltip"]');
     for(var i = 0; i < tool_list.length; i++){
         tool_list.eq(i).tooltip(tooltips[i]);
@@ -59,16 +59,16 @@ function readInputs() {
     if (auth){
     		user = document.getElementById('user').value.trim();
     		password = document.getElementById('password').value.trim();
-    }
+    };
 		moviePath = document.getElementById('txtMoviePath').value.trim();
 }
 
 function constructBaseUrl(host, port) {
-    if (port === "") {
+    if (port == "") {
         return httpHost(host);
     } else {
         return httpHost(host) + ":" + port;
-    }
+    };
 }
 
 function testApi(url) {

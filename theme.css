@@ -3,7 +3,7 @@
 }
 
 body{
-    margin:0;
+    margin:0px;
 	font-family: "open sans","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 12px;
     line-height: 1.42857143;
@@ -17,7 +17,7 @@ h2{
 	font-family: inherit;
     line-height: 1.1;
     color: #444444;
-    margin-top: 0;
+    margin-top: 0px;
 }
 
 h3{
@@ -35,11 +35,11 @@ h4{
 }
 
 p{
-	margin-bottom: 0;
+	margin-bottom: 0px;
 }
 
 label{
-	margin-bottom: 0;
+	margin-bottom: 0px;
 }
 
 h2 span{
@@ -160,7 +160,7 @@ p.more{
 }
 
 #imagediv{
-	padding-right: 0;
+	padding-right: 0px;
 }
 
 #serverResponse{
