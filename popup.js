@@ -20,7 +20,7 @@ $(document).ready(function() {
 });
 
 getCurrentTabUrl(function(url) {
-    if (radarrExt.config.getHost() == null || radarrExt.config.getHost() == "") {
+    if (radarrExt.config.getHost() === null || radarrExt.config.getHost() === "") {
         chrome.runtime.openOptionsPage();
     } else {
         radarrExt.lookupMovie(extractIMDBID(url));
@@ -98,11 +98,11 @@ var radarrExt = {
         getPort: function() {
             var savedPort = localStorage.getItem('port');
 
-            if (savedPort != "") {
+            if (savedPort !== "") {
                 return ":" + savedPort;
             } else {
                 return "";
-            };
+            }
         },
 
         getApi: function() {
@@ -119,13 +119,13 @@ var radarrExt = {
 
         getMoviePath: function() {
             return new Promise(function(resolve, reject) {
-                if (localStorage.getItem('moviePath') != "") {
+                if (localStorage.getItem('moviePath') !== "") {
                     resolve(localStorage.getItem('moviePath'));
                 } else {
                     radarrExt.server.get("rootfolder", "").then(function(response) {
                         resolve(response.text[0].path);
                     });
-                };
+                }
             });
         }
     },
@@ -195,19 +195,19 @@ var radarrExt = {
     popup: {
         init: function(movie, slug) {
             var addPath;
-  			    radarrExt.config.getMoviePath().then(function(response) {addPath = response});
+  			    radarrExt.config.getMoviePath().then(function(response) {addPath = response;});
             $('#description').html(movie.text[0].overview);
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
                 radarrExt.popup.restoreSettings();
-            };
+            }
             $('body').changepanel(movie.text[0]);
 
-            if (slug != "") {
+            if (slug !== "") {
                 $('#btnExists').removeClass('hidden');
                 $('#btnAdd').addClass('hidden');
                 $('#btnAddSearch').addClass('hidden');
-            };
+            }
 
             $("#popup").stop(true).fadeTo('fast', 1);
             $("#popup").removeClass("unclickable");
@@ -261,9 +261,9 @@ var radarrExt = {
                 $('#monitored').bootstrapToggle('on');
             } else {
                 $('#monitored').bootstrapToggle('off');
-            };
+            }
 
-            if (localStorage.getItem("minAvail") != null) $('#minAvail').val(localStorage.getItem("minAvail"));
+            if (localStorage.getItem("minAvail") !== null) $('#minAvail').val(localStorage.getItem("minAvail"));
         },
 
         profilesById: function() {
@@ -273,12 +273,12 @@ var radarrExt = {
                     $('#profile')
                         .append($('<option>', { value: profiles[i].id })
                         .text(profiles[i].name));
-                };
-                if (localStorage.getItem("profile") != null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
+                }
+                if (localStorage.getItem("profile") !== null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
                     $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
-                };
+                }
             }).catch(function(error) {
-                radarrExt.popup.info("profilesById Failed! " + error)
+                radarrExt.popup.info("profilesById Failed! " + error);
             });
         }
     },
@@ -289,16 +289,16 @@ var radarrExt = {
                 for (var i = 0; i < response.text.length; i++) {
                     if (imdbid === response.text[i].imdbId) {
                         resolve(response.text[i].titleSlug);
-                    };
-                };
+                    }
+                }
                 resolve("");
             }).catch(function(error) {
                 radarrExt.popup.init(noMovie);
                 $("#options").addClass("hidden");
                 $("#btnAdd").addClass("hidden");
-                radarrExt.popup.info(error)
+                radarrExt.popup.info(error);
             });
-        })
+        });
     },
 
     lookupMovie: function(imdbid) {
@@ -358,4 +358,4 @@ var radarrExt = {
             $("#popup").toggleClass("unclickable");
         });
     },
-}
+};
