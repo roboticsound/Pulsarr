@@ -148,7 +148,16 @@ var radarrExt = {
                         };
                         resolve(results);
                     } else {
-                        reject(Error(http.statusText));
+                      switch (http.status) {
+                        case 401:
+                          reject("Unauthorised! Please check your API key or server authentication.");
+                          break;
+                        case 500:
+                          reject("Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).");
+                          break;
+                        default:
+                          reject(Error("(" + http.status + ")" + http.statusText));
+                      }
                     }
                 };
 
@@ -177,7 +186,16 @@ var radarrExt = {
                         };
                         resolve(results);
                     } else {
-                        reject(Error(http.statusText));
+                      switch (http.status) {
+                        case 400:
+                          reject("Failed to add movie! Please check it is not already in your collection.");
+                          break;
+                        case 401:
+                          reject("Unauthorised! Please check your API key or server authentication.");
+                          break;
+                        default:
+                          reject(Error("(" + http.status + ")" + http.statusText));
+                      }
                     }
                 };
 
@@ -309,8 +327,8 @@ var radarrExt = {
         }).catch(function(error) {
             radarrExt.popup.init(noMovie);
             $("#options").addClass("hidden");
-            $("#btnAdd").addClass("hidden");
-            radarrExt.popup.info(error + ": Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).");
+            $("#btnBar").addClass("hidden");
+            radarrExt.popup.info(error);
         });
     },
 
@@ -354,7 +372,7 @@ var radarrExt = {
             $("#popup").removeClass("unclickable");
         }).catch(function(error) {
             $("#popup").stop(true).fadeTo('fast', 1);
-            radarrExt.popup.info(error + ": Failed to add movie! Please check it is not already in your collection.");
+            radarrExt.popup.info(error);
             $("#popup").toggleClass("unclickable");
         });
     },
