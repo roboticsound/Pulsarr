@@ -83,7 +83,16 @@ function testApi(url) {
             if (this.status === 200) {
                 resolve(http.statusText);
             } else {
-                reject(Error(http.statusText));
+							switch (http.status) {
+								case 400:
+									reject(Error("Failed to add movie! Please check it is not already in your collection."));
+									break;
+								case 401:
+									reject("Unauthorised! Please check your API key or server authentication.");
+									break;
+								default:
+									reject(Error("(" + http.status + ")" + http.statusText));
+							}
             }
         };
 
