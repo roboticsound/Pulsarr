@@ -18,15 +18,18 @@
     <script type="text/javascript" src="../lib/js/jquery.spin.js"></script>
 
 </head>
+
 <body>
     <div id="popup" class="container-fluid" style="max-width: 400px;">
         <div id="spin"></div>
 
         <div id="page">
+
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#radarrConfig">Radarr</a></li>
                 <li><a data-toggle="tab" href="#sonarrConfig">Sonarr</a></li>
             </ul>
+
             <div class="tab-content">
 
                 <div id="radarrConfig" class="tab-pane fade in active">
@@ -37,22 +40,22 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <input type="text" id="host" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            <input type="text" id="radarrHost" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="checkbox checkbox-success">
-                                <input id="chkAuth" type="checkbox">
-        						<label for="chkAuth">
+                                <input id="radarrAuth" type="checkbox">
+        						<label for="radarrAuth">
                                     Basic Auth?
                                 </label><i class="fa fa-question-circle icon-large" data-toggle="tooltip" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div id="optAuth" class="hidden">
+                    <div id="optRadarrAuth" class="hidden">
                         <div class="row">
                             <div class="col-xs-6">
                                 <h4>User:</h4>
@@ -63,10 +66,10 @@
         	            </div>
         				<div class="row">
         	                <div class="col-xs-6">
-        	                    <input type="text" id="user" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+        	                    <input type="text" id="radarrUser" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
         	                </div>
         	                <div class="col-xs-6">
-        	                    <input type="text" id="password" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+        	                    <input type="text" id="radarrPassword" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
         	                </div>
         				</div>
         			</div>
@@ -79,7 +82,7 @@
 
                     <div class="row">
                         <div class="col-xs-12">
-                            <input type="text" id="port" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            <input type="text" id="radarrPort" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
                         </div>
                     </div>
 
@@ -91,7 +94,7 @@
 
                     <div class="row">
                         <div class="col-xs-12">
-                            <input type="text" id="radarrapikey" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            <input type="text" id="radarrApiKey" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
                         </div>
                     </div>
 
@@ -103,7 +106,7 @@
 
                     <div class="row">
                         <div class="col-xs-12">
-                            <input type="text" id="txtMoviePath" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            <input type="text" id="radarrRootPath" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
                         </div>
                     </div>
                 </div>
@@ -123,15 +126,15 @@
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="checkbox checkbox-success">
-                                <input id="sonarrChkAuth" type="checkbox">
-        						<label for="chkAuth">
+                                <input id="sonarrAuth" type="checkbox">
+        						<label for="sonarrAuth">
                                     Basic Auth?
                                 </label><i class="fa fa-question-circle icon-large" data-toggle="tooltip" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div id="sonarrOptAuth" class="hidden">
+                    <div id="optSonarrAuth" class="hidden">
                         <div class="row">
                             <div class="col-xs-6">
                                 <h4>User:</h4>
@@ -188,6 +191,7 @@
                 </div>
             </div>
         </div>
+
         <div class="row internal-container">
             <div class="col-md-12 col-xs-12">
                 <button id="save" type="button" class="btn btn-primary btn-block"><span><i class="fa fa-plus" aria-hidden="true"></i></span> Save</button>
@@ -200,6 +204,7 @@
             </div>
         </div>
     </div>
+
     <script src="options.js"></script>
 </body>
 </html>
