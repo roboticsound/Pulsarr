@@ -121,43 +121,7 @@ $('#save').click(function() {
 	readInputs();
 
 	testConfig(radarrServer.host !== "", sonarrServer.host !== "");
-    // radarrServer.get("/api/system/status").then(function(response) {
-    //     saveConfig();
-    //     $("#popup").stop(true).fadeTo('fast', 1);
-    //     $("#spin").spin(false);
-    // }).catch(function(error) {
-    //     $("#status").text(error);
-    //     $("#page *").prop('disabled', false);
-    //     $("#save").toggleClass("unclickable");
-    //     $("#popup").stop(true).fadeTo('fast', 1);
-    //     $("#spin").spin(false);
-    // });
 });
-
-// function testConfig(radarr, sonarr) {
-// 	if (radarr || sonarr) {
-// 		var testServers = [];
-// 		if (radarr) {testServers.push(radarrServer.get("/api/system/status"));}
-// 		if (sonarr) {testServers.push(sonarrServer.get("/api/system/status"));}
-// 		Promise.all(testServers).then(function(response) {
-// 			// saveConfig();
-// 			$("#popup").stop(true).fadeTo('fast', 1);
-// 			$("#spin").spin(false);
-// 		}).catch(function(error) {
-// 			$("#status").text(error);
-// 			$("#page *").prop('disabled', false);
-// 	        $("#save").toggleClass("unclickable");
-// 	        $("#popup").stop(true).fadeTo('fast', 1);
-// 	        $("#spin").spin(false);
-// 		});
-// 	} else {
-// 		$("#status").text("Please configure at least one server!");
-// 		$("#page *").prop('disabled', false);
-// 		$("#save").toggleClass("unclickable");
-// 		$("#popup").stop(true).fadeTo('fast', 1);
-// 		$("#spin").spin(false);
-// 	}
-// }
 
 function testConfig(radarr, sonarr) {
 	if (radarr || sonarr) {
@@ -203,49 +167,6 @@ function readInputs() {
 	}
 	sonarrServer.rootpath = document.getElementById('sonarrRootPath').value.trim();
 }
-
-// function testApi(url) {
-//     return new Promise(function(resolve, reject) {
-//         var http = new XMLHttpRequest();
-//
-//         http.open("GET", url, true);
-//         if (auth) http.setRequestHeader("Authorization", "Basic " + btoa(user + ":" + password));
-//         http.setRequestHeader("X-Api-Key", apikey);
-//
-//         http.onload = function() {
-//             if (this.status === 200) {
-//                 resolve(http.statusText);
-//             } else {
-// 							switch (http.status) {
-// 								case 400:
-// 									reject(Error("Failed to add movie! Please check it is not already in your collection."));
-// 									break;
-// 								case 401:
-// 									reject("Unauthorised! Please check your API key or server authentication.");
-// 									break;
-// 								default:
-// 									reject(Error("(" + http.status + ")" + http.statusText));
-// 							}
-//             }
-//         };
-//
-//         http.onerror = function() {
-//             reject(Error("Unable to communicate with server. Please check host/port."));
-//         };
-//
-//         http.send();
-//     });
-// }
-
-// function httpHost(string) {
-//     var regex = new RegExp("https{0,1}:\/\/");
-//
-//     if (regex.exec(string)) {
-//         return string;
-//     } else {
-//         return "http://" + string;
-//     }
-// }
 
 function saveConfig() {
 	localStorage.setItem("radarrConfig", JSON.stringify(radarrServer));
