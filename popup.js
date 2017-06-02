@@ -1,6 +1,8 @@
 "use strict";
 var pulsarr;
 var radarr;
+var sonarr;
+
 const noMovie = {
     "status": 404,
     "text": [{
@@ -73,10 +75,17 @@ class Pulsarr {
     }
 
     extractIMDBID(url) {
-        var regex = new RegExp("\/tt\\d{7}\/");
+        var regex = new RegExp("\/tt\\d{1,7}\/");
         var imdbid = regex.exec(url);
 
         return (imdbid) ? imdbid[0].slice(1, 10) : null;
+    }
+
+    extractTVDBID(url) {
+        var regex = new RegExp("\&id\=\\d{1,7}");
+        var tvdbid = regex.exec(url);
+
+        return (tvdbid) ? tvdbid[0].slice(4) : null;
     }
 }
 
@@ -316,9 +325,123 @@ class RadarrServer extends Server {
     }
 }
 
+class SonarrServer extends Server {
+    constructor() {
+        super(
+            JSON.parse(localStorage.getItem("sonarrConfig")).host,
+            JSON.parse(localStorage.getItem("sonarrConfig")).port,
+            JSON.parse(localStorage.getItem("sonarrConfig")).apikey,
+            JSON.parse(localStorage.getItem("sonarrConfig")).auth,
+            JSON.parse(localStorage.getItem("sonarrConfig")).user,
+            JSON.parse(localStorage.getItem("sonarrConfig")).password,
+            JSON.parse(localStorage.getItem("sonarrConfig")).rootpath
+        );
+    }
+
+    addMovie(movie, qualityId, monitored, minAvail, addSearch, folderPath) {
+        $("#popup").toggleClass("unclickable");
+        $("#popup").fadeTo("fast", 0.5);
+        $("#serverResponse").removeClass("hidden");
+        $("#serverResponse").spin('large');
+        var newMovie = {
+            "title": movie.title,
+            "year": movie.year,
+            "qualityProfileId": qualityId,
+            "titleSlug": movie.titleSlug,
+            "images": [
+                {
+                    "coverType": "poster",
+                    "url": null
+                },
+                {
+                    "coverType": "banner",
+                    "url": null
+                }
+            ],
+            "tmdbid": movie.tmdbId,
+            "rootFolderPath": folderPath,
+            "monitored": monitored,
+            "minimumAvailability": minAvail,
+            "addOptions": {
+                "searchForMovie": addSearch
+            }
+        };
+
+        this.post("/api/movie", newMovie).then(function(response) {
+            radarrExt.popup.saveSettings(monitored, qualityId, minAvail);
+            $("#popup").stop(true).fadeTo('fast', 1);
+            $('#serverResponse').text("Movie added to Radarr!");
+            $("#serverResponse").removeClass("hidden");
+            setTimeout(function() {
+                window.close();
+            }, 1500);
+            $("#popup").removeClass("unclickable");
+        }).catch(function(error) {
+            $("#popup").stop(true).fadeTo('fast', 1);
+            pulsarr.info(error);
+            $("#popup").toggleClass("unclickable");
+        });
+    }
+
+    lookupSeries(tvdbid) {
+        var existingSlug = this.isExistingSeries(tvdbid);
+        var lookup = this.get("/api/series/lookup", "term=tvdb%3A%20" + tvdbid);
+        Promise.all([lookup, existingSlug]).then(function(response) {
+            pulsarr.init(response[0], response[1]);
+        }).catch(function(error) {
+            pulsarr.init(noMovie);
+            $("#options").addClass("hidden");
+            $("#btnBar").addClass("hidden");
+            pulsarr.info(error);
+        });
+    }
+
+    profilesById() {
+        this.get("/api/profile", "").then(function(response) {
+            var profiles = response.text;
+            for (var i = 0; i < profiles.length; i++) {
+                $('#profile')
+                    .append($('<option>', { value: profiles[i].id })
+                    .text(profiles[i].name));
+            }
+            if (localStorage.getItem("profile") !== null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
+                $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
+            }
+        }).catch(function(error) {
+            pulsarr.info("profilesById Failed! " + error);
+        });
+    }
+
+    isExistingSeries(tvdbid) {
+        var self = this;
+        return new Promise(function(resolve, reject) {
+            self.get("/api/series", "").then(function(response) {
+                for (var i = 0; i < response.text.length; i++) {
+                    if (tvdbid === response.text[i].imdbId) {
+                        resolve(response.text[i].titleSlug);
+                    }
+                }
+                resolve("");
+            }).catch(function(error) {
+                pulsarr.init(noMovie);
+                $("#options").addClass("hidden");
+                $("#btnAdd").addClass("hidden");
+                pulsarr.info(error);
+            });
+        });
+    }
+
+    TvdbidFromImdbid(imdbid) {
+        $.ajax({url: "http://thetvdb.com/api/GetSeriesByRemoteID.php?imdbid=" + imdbid, datatype: "xml", success:function(result){
+            return $(result).find("seriesid")[0].textContent;
+        }});
+    }
+}
+
 function init() {
     pulsarr = new Pulsarr();
     radarr = new RadarrServer();
+    sonarr = new SonarrServer();
 }
 
 init();
@@ -327,7 +450,8 @@ getCurrentTabUrl(function(url) {
     if (radarr.host === null || radarr.host === "") {
         chrome.runtime.openOptionsPage();
     } else {
-        radarr.lookupMovie(pulsarr.extractIMDBID(url));
+        sonarr.lookupSeries(pulsarr.extractTVDBID(url));
+        //radarr.lookupMovie(pulsarr.extractIMDBID(url));
     }
 
     $('#config').on('click', function() {
