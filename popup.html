@@ -66,6 +66,7 @@
                     <input type="checkbox" id="monitored" checked data-toggle="toggle" data-offstyle="danger" value="true">
                 </div>
             </div>
+
             <div id="optMinAvail" class="row internal-container">
                 <div class="col-xs-4 vcenter">
                     <label class="textpadding">Min Avail</label>
@@ -79,6 +80,7 @@
                     </select>
                 </div>
             </div>
+
             <div id="optProfile" class="row internal-container">
                 <div class="col-xs-4 vcenter">
                     <label class="textpadding">Profile</label>
@@ -87,15 +89,21 @@
                     <select id="profile" class="form-control x-profile"></select>
                 </div>
             </div>
+
             <div id="optSeriesType" class="row internal-container">
                 <div class="col-xs-4 vcenter">
                     <label class="textpadding">Series Type</label>
                 </div>
                 <div class="col-xs-8 vcenter">
-                    <select id="cmdSeriesType" class="form-control x-profile"></select>
+                    <select id="lstSeriesType" class="form-control x-profile">
+                        <option value="standard">Standard</option>
+                        <option value="daily">Daily</option>
+                        <option value="anime">Anime</option>
+                    </select>
                 </div>
             </div>
         </div>
+
         <div class="row internal-container ctlRow">
         	<div class="col-md-6 col-xs-4 text-left">
                 <button id="config" type="button" class="btn button" title="Configuration">
