@@ -22,6 +22,10 @@ class Pulsarr {
         switch (media.type) {
             case "movie":
                 $('#serverName').text("Add to Radarr");
+                $("#optMonitored").removeClass("hidden");
+                $("#optMinAvail").removeClass("hidden");
+                $("#optProfile").removeClass("hidden");
+
                 radarr.getPath().then(function(response) {addPath = response;});
 
                 $('#description').html(media.movie.text[0].overview);
@@ -75,6 +79,10 @@ class Pulsarr {
 
             case "series":
                 $('#serverName').text("Add to Sonarr");
+                $("#optMonitored").removeClass("hidden");
+                $("#optProfile").removeClass("hidden");
+                $("#optSeriesType").removeClass("hidden");
+
                 sonarr.getPath().then(function(response) {addPath = response;});
 
                 $('#description').html(media.series.text[0].overview);
