@@ -17,59 +17,130 @@ const noMovie = {
 };
 
 class Pulsarr {
-    init(movie, slug) {
+    init(media) {
         var addPath;
-            radarr.getPath().then(function(response) {addPath = response;});
-        $('#description').html(movie.text[0].overview);
-        if (movie.status == 200) {
-            radarr.profilesById();
-            radarrExt.popup.restoreSettings();
-        }
-        $('body').changepanel(movie.text[0]);
+        switch (media.type) {
+            case "movie":
+                $('#serverName').text("Add to Radarr");
+                radarr.getPath().then(function(response) {addPath = response;});
 
-        if (slug !== "") {
-            $('#btnExists').removeClass('hidden');
-            $('#btnAdd').addClass('hidden');
-            $('#btnAddSearch').addClass('hidden');
-        }
+                $('#description').html(media.movie.text[0].overview);
+                if (media.movie.status == 200) {
+                    radarr.profilesById();
+                    if (localStorage.getItem("radarrSettings") !== null) radarr.restoreSettings();
+                }
+                $('body').changepanel(media.movie.text[0]);
 
-        $("#popup").stop(true).fadeTo('fast', 1);
-        $("#popup").removeClass("unclickable");
-        $("#options").removeClass("hidden");
-        $("#buttons").removeClass("hidden");
+                if (media.existingSlug !== "") {
+                    $('#btnExists').removeClass('hidden');
+                    $('#btnAdd').addClass('hidden');
+                    $('#btnAddSearch').addClass('hidden');
+                }
+
+                $("#popup").stop(true).fadeTo('fast', 1);
+                $("#popup").removeClass("unclickable");
+                $("#options").removeClass("hidden");
+                $("#buttons").removeClass("hidden");
+                $(".spinner").remove();
+
+                $('#btnExists').on('click', function() {
+                    chrome.tabs.create({
+                        url: radarr.constructBaseUrl() + "/movies/" + media.existingSlug
+                    });
+                    return false;
+                });
+
+                $('#btnAdd').on('click', function() {
+                    radarr.addMovie(
+                        media.movie.text[0],
+                        $('#profile').val(),
+                        $("#monitored").prop('checked'),
+                        $('#minAvail').val(),
+                        false,
+                        addPath
+                    );
+                });
+
+                $('#btnAddSearch').on('click', function() {
+                    radarr.addMovie(
+                        media.movie.text[0],
+                        $('#profile').val(),
+                        $("#monitored").prop('checked'),
+                        $('#minAvail').val(),
+                        true,
+                        addPath
+                      );
+                });
+            break;
+
+            case "series":
+                $('#serverName').text("Add to Sonarr");
+                sonarr.getPath().then(function(response) {addPath = response;});
+
+                $('#description').html(media.series.text[0].overview);
+                if (media.series.status == 200) {
+                    sonarr.profilesById();
+                    if (localStorage.getItem("sonarrSettings") !== null) sonarr.restoreSettings();
+                }
+                $('body').changepanel(media.series.text[0]);
+
+                if (media.existingSlug !== "") {
+                    $('#btnExists').removeClass('hidden');
+                    $('#btnAdd').addClass('hidden');
+                    $('#btnAddSearch').addClass('hidden');
+                }
+
+                $("#popup").stop(true).fadeTo('fast', 1);
+                $("#popup").removeClass("unclickable");
+                $("#options").removeClass("hidden");
+                $("#buttons").removeClass("hidden");
+                $(".spinner").remove();
+
+                $('#btnExists').on('click', function() {
+                    chrome.tabs.create({
+                        url: sonarr.constructBaseUrl() + "/series/" + media.existingSlug
+                    });
+                    return false;
+                });
+
+                $('#btnAdd').on('click', function() {
+                    sonarr.addSeries(
+                    media.series.text[0],
+                        $('#profile').val(),
+                        "standard",
+                        $("#monitored").prop('checked'),
+                        $('#minAvail').val(),
+                        false,
+                        addPath
+                    );
+                });
+
+                $('#btnAddSearch').on('click', function() {
+                    sonarr.addSeries(
+                        media.series.text[0],
+                        $('#profile').val(),
+                        "standard",
+                        $("#monitored").prop('checked'),
+                        $('#minAvail').val(),
+                        true,
+                        addPath
+                      );
+                });
+                break;
+
+            default:
+                pulsarr.init(noMovie);
+        }
+    }
+
+    requestComplete() {
+        $("#popup").fadeTo("fast", 1);
         $(".spinner").remove();
-
-        $('#btnExists').on('click', function() {
-            chrome.tabs.create({
-                url: radarr.constructBaseUrl() + "/movies/" + slug
-            });
-            return false;
-        });
-
-        $('#btnAdd').on('click', function() {
-            radarr.addMovie(
-            movie.text[0],
-                $('#profile').val(),
-                $("#monitored").prop('checked'),
-                $('#minAvail').val(),
-                false,
-                addPath
-            );
-        });
-
-        $('#btnAddSearch').on('click', function() {
-            radarr.addMovie(
-                movie.text[0],
-                $('#profile').val(),
-                $("#monitored").prop('checked'),
-                $('#minAvail').val(),
-                true,
-                addPath
-              );
-        });
+        $("#popup").removeClass("unclickable");
     }
 
     info(text) {
+        pulsarr.requestComplete();
         $('#serverResponse').text(text);
         $("#serverResponse").removeClass("hidden");
     }
@@ -103,14 +174,7 @@ class Pulsarr {
     TvdbidFromImdbid(imdbid) {
         return new Promise(function(resolve, reject) {
             $.ajax({url: "http://thetvdb.com/api/GetSeriesByRemoteID.php?imdbid=" + imdbid, datatype: "xml", success:function(result){
-                // test = $(result).find("seriesid")[0].textContent;
-                // return test;
                 resolve($(result).find("seriesid").text());
-
-                // //console.log($(result).find("seriesid")[0].textContent);
-                // return ($(result).find("seriesid")[0].textContent).toString();
-                // // var tvdbid = $(result).find("seriesid")[0].textContent;
-                // // return tvdbid;
             }});
         });
     }
@@ -187,7 +251,7 @@ class Server {
 			};
 
             http.ontimeout = function(error) {
-                reject(Error("Server took too long to respond"));
+                reject(Error(self.name + " took too long to respond"));
             };
 
 			http.onerror = function() {
@@ -258,6 +322,26 @@ class RadarrServer extends Server {
         );
     }
 
+    saveSettings(monitored, qualityId, minAvail) {
+        var radarrSettings = {
+            "monitored": monitored,
+            "profile": qualityId,
+            "minAvail": minAvail
+        };
+        localStorage.setItem("radarrSettings", JSON.stringify(radarrSettings));
+    }
+
+    restoreSettings() {
+        var radarrSettings = JSON.parse(localStorage.getItem("radarrSettings"));
+        if (radarrSettings.monitored == "true") {
+            $('#monitored').bootstrapToggle('on');
+        } else {
+            $('#monitored').bootstrapToggle('off');
+        }
+
+        if (radarrSettings.minAvail !== null) $('#minAvail').val(radarrSettings.minAvail);
+    }
+
     addMovie(movie, qualityId, monitored, minAvail, addSearch, folderPath) {
         $("#popup").toggleClass("unclickable");
         $("#popup").fadeTo("fast", 0.5);
@@ -268,16 +352,7 @@ class RadarrServer extends Server {
             "year": movie.year,
             "qualityProfileId": qualityId,
             "titleSlug": movie.titleSlug,
-            "images": [
-                {
-                    "coverType": "poster",
-                    "url": null
-                },
-                {
-                    "coverType": "banner",
-                    "url": null
-                }
-            ],
+            "images": movie.images,
             "tmdbid": movie.tmdbId,
             "rootFolderPath": folderPath,
             "monitored": monitored,
@@ -288,18 +363,13 @@ class RadarrServer extends Server {
         };
 
         this.post("/api/movie", newMovie).then(function(response) {
-            radarrExt.popup.saveSettings(monitored, qualityId, minAvail);
-            $("#popup").stop(true).fadeTo('fast', 1);
-            $('#serverResponse').text("Movie added to Radarr!");
-            $("#serverResponse").removeClass("hidden");
+            radarr.saveSettings(monitored, qualityId, minAvail);
+            pulsarr.info("Movie added to Radarr!");
             setTimeout(function() {
                 window.close();
             }, 1500);
-            $("#popup").removeClass("unclickable");
         }).catch(function(error) {
-            $("#popup").stop(true).fadeTo('fast', 1);
             pulsarr.info(error);
-            $("#popup").toggleClass("unclickable");
         });
     }
 
@@ -316,29 +386,14 @@ class RadarrServer extends Server {
                     reject({"type": "movie", "movie": response[0], "existingSlug": response[1]});
                 }).catch(function(error) {
                     resolve(error);
-                    // pulsarr.init(noMovie);
-                    // $("#options").addClass("hidden");
-                    // $("#btnBar").addClass("hidden");
-                    // pulsarr.info(error);
                 });
             }
         });
     }
 
-    // lookupMovie(imdbid) {
-    //     var existingSlug = this.isExistingMovie(imdbid);
-    //     var lookup = this.get("/api/movies/lookup", "term=imdbid%3A%20" + imdbid);
-    //     Promise.all([lookup, existingSlug]).then(function(response) {
-    //         pulsarr.init(response[0], response[1]);
-    //     }).catch(function(error) {
-    //         pulsarr.init(noMovie);
-    //         $("#options").addClass("hidden");
-    //         $("#btnBar").addClass("hidden");
-    //         pulsarr.info(error);
-    //     });
-    // }
-
     profilesById() {
+        var radarrSettings = JSON.parse(localStorage.getItem("radarrSettings"));
+
         this.get("/api/profile", "").then(function(response) {
             var profiles = response.text;
             for (var i = 0; i < profiles.length; i++) {
@@ -346,8 +401,8 @@ class RadarrServer extends Server {
                     .append($('<option>', { value: profiles[i].id })
                     .text(profiles[i].name));
             }
-            if (localStorage.getItem("profile") !== null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
-                $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
+            if (radarrSettings.profile !== null && (radarrSettings.profile <= $('#profile').children('option').length)) {
+                $('#profile').prop('selectedIndex', radarrSettings.profile - 1);
             }
         }).catch(function(error) {
             pulsarr.info("profilesById Failed! " + error);
@@ -360,16 +415,12 @@ class RadarrServer extends Server {
             self.get("/api/movie", "").then(function(response) {
                 for (var i = 0; i < response.text.length; i++) {
                     if (imdbid === response.text[i].imdbId) {
-                        resolve()(response.text[i].titleSlug);
+                        resolve(response.text[i].titleSlug);
                     }
                 }
                 resolve("");
             }).catch(function(error) {
                 reject(error);
-                // pulsarr.init(noMovie);
-                // $("#options").addClass("hidden");
-                // $("#btnAdd").addClass("hidden");
-                // pulsarr.info(error);
             });
         });
     }
@@ -388,39 +439,50 @@ class SonarrServer extends Server {
         );
     }
 
-    addMovie(movie, qualityId, monitored, minAvail, addSearch, folderPath) {
+    saveSettings(monitored, qualityId, minAvail) {
+        var sonarrSettings = {
+            "monitored": monitored,
+            "profile": qualityId,
+            // "minAvail": minAvail
+        };
+        localStorage.setItem("sonarrSettings", JSON.stringify(sonarrSettings));
+    }
+
+    restoreSettings() {
+        var sonarrSettings = JSON.parse(localStorage.getItem("sonarrSettings"));
+        if (sonarrSettings.monitored == "true") {
+            $('#monitored').bootstrapToggle('on');
+        } else {
+            $('#monitored').bootstrapToggle('off');
+        }
+
+        // if (sonarrSettings.minAvail !== null) $('#minAvail').val(sonarrSettings.minAvail);
+    }
+
+    addSeries(series, qualityId, seriesType, monitored, addSearch, folderPath) {
         $("#popup").toggleClass("unclickable");
         $("#popup").fadeTo("fast", 0.5);
         $("#serverResponse").removeClass("hidden");
         $("#serverResponse").spin('large');
-        var newMovie = {
-            "title": movie.title,
-            "year": movie.year,
+        var newSeries = {
+            "title": series.title,
+            "year": series.year,
             "qualityProfileId": qualityId,
-            "titleSlug": movie.titleSlug,
-            "images": [
-                {
-                    "coverType": "poster",
-                    "url": null
-                },
-                {
-                    "coverType": "banner",
-                    "url": null
-                }
-            ],
-            "tmdbid": movie.tmdbId,
+            "seriesType": seriesType,
+            "titleSlug": series.titleSlug,
+            "images": series.images,
+            "tvdbId": series.tvdbId,
             "rootFolderPath": folderPath,
             "monitored": monitored,
-            "minimumAvailability": minAvail,
             "addOptions": {
                 "searchForMovie": addSearch
             }
         };
 
-        this.post("/api/movie", newMovie).then(function(response) {
-            radarrExt.popup.saveSettings(monitored, qualityId, minAvail);
+        this.post("/api/movie", newSeries).then(function(response) {
+            radarrExt.popup.saveSettings(monitored, qualityId);
             $("#popup").stop(true).fadeTo('fast', 1);
-            $('#serverResponse').text("Movie added to Radarr!");
+            $('#serverResponse').text("Series added to Sonarr!");
             $("#serverResponse").removeClass("hidden");
             setTimeout(function() {
                 window.close();
@@ -446,27 +508,10 @@ class SonarrServer extends Server {
                     reject({"type": "series", "series": response[0], "existingSlug": response[1]});
                 }).catch(function(error) {
                     resolve(error);
-                    // pulsarr.init(noMovie);
-                    // $("#options").addClass("hidden");
-                    // $("#btnBar").addClass("hidden");
-                    // pulsarr.info(error);
                 });
             }
         });
     }
-
-    // lookupSeries(tvdbid) {
-    //     var existingSlug = this.isExistingSeries(tvdbid);
-    //     var lookup = this.get("/api/series/lookup", "term=tvdb%3A%20" + tvdbid);
-    //     Promise.all([lookup, existingSlug]).then(function(response) {
-    //         pulsarr.init(response[0], response[1]);
-    //     }).catch(function(error) {
-    //         pulsarr.init(noMovie);
-    //         $("#options").addClass("hidden");
-    //         $("#btnBar").addClass("hidden");
-    //         pulsarr.info(error);
-    //     });
-    // }
 
     profilesById() {
         this.get("/api/profile", "").then(function(response) {
@@ -496,16 +541,14 @@ class SonarrServer extends Server {
                 resolve("");
             }).catch(function(error) {
                 reject(error);
-                // pulsarr.init(noMovie);
-                // $("#options").addClass("hidden");
-                // $("#btnAdd").addClass("hidden");
-                // pulsarr.info(error);
             });
         });
     }
 }
 
 function init() {
+    $("#popup").fadeTo("fast", 0.5);
+    $("#spin").spin('large');
     pulsarr = new Pulsarr();
     radarr = new RadarrServer();
     sonarr = new SonarrServer();
@@ -519,61 +562,36 @@ getCurrentTabUrl(function(url) {
         chrome.runtime.openOptionsPage();
     } else if (pulsarr.isImdb(url)) {
         var imdbid = pulsarr.extractIMDBID(url);
-        var tvdbid = pulsarr.TvdbidFromImdbid(imdbid).then(function(response) {
+        pulsarr.TvdbidFromImdbid(imdbid).then(function(response) {
+            var tvdbid = response;
             Promise.all([radarr.lookupMovie(imdbid), sonarr.lookupSeries(tvdbid)]).then(function(error) {
-                window.alert(error);
-                console.log(error);
+                pulsarr.info(error);
             }).catch(function(response) {
-                window.alert(response.type);
-                console.log(response.type);
-                        // pulsarr.init(noMovie);
-                        // $("#options").addClass("hidden");
-                        // $("#btnBar").addClass("hidden");
-                        // pulsarr.info(error);
+                pulsarr.init(response);
             });
         });
     } else if (pulsarr.isTvdb(url)) {
         sonarr.lookupSeries(pulsarr.extractTVDBID(url)).then(function(error) {
-            window.alert(error);
-            console.log(error);
+            pulsarr.info(error);
         }).catch(function(response) {
-            window.alert(response.type);
-            console.log(response.type);
+            pulsarr.init(response);
         });
+    } else {
+        pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
     }
-
-
-    //     if (pulsarr.isImdb(url)) {
-    //         Promise.all([radarr.lookupMovie(pulsarr.extractIMDBID(url)), sonarr.lookupSeries(pulsarr.extractTVDBID(url))]).then(function(error) {
-    //             window.alert(error);
-    //         }).catch(function(response) {
-    //             window.alert(response.type);
-    //             // pulsarr.init(noMovie);
-    //             // $("#options").addClass("hidden");
-    //             // $("#btnBar").addClass("hidden");
-    //             // pulsarr.info(error);
-    //         });
-    //     }
-    //     // antipattern: catch is resolve case and then is reject case
-    //     Promise.all([radarr.lookupMovie(pulsarr.extractIMDBID(url)), sonarr.lookupSeries(pulsarr.extractTVDBID(url))]).then(function(error) {
-    //         window.alert(error);
-    //     }).catch(function(response) {
-    //         window.alert(response.type);
-    //         // pulsarr.init(noMovie);
-    //         // $("#options").addClass("hidden");
-    //         // $("#btnBar").addClass("hidden");
-    //         // pulsarr.info(error);
-    //     });
-    //     //sonarr.lookupSeries(pulsarr.extractTVDBID(url));
 
     $('#config').on('click', function() {
         chrome.runtime.openOptionsPage();
     });
 });
 
-jQuery.fn.changepanel = function(movie) {
-    $('#image').attr("src", movie.images[0].url);
-    $('#title').html(movie.title + "<span> (" + movie.year + ")</span>");
+jQuery.fn.changepanel = function(media) {
+    for (var i = 0; i < media.images.length; i++) {
+        if (media.images[i].coverType === "poster") {
+            $('#image').attr("src", media.images[i].url);
+        }
+    }
+    $('#title').html(media.title + "<span> (" + media.year + ")</span>");
     $('#description').each(function() {
         var content = $(this).html(),
             char = 140;
@@ -627,14 +645,14 @@ var radarrExt = {
             localStorage.setItem("minAvail", minAvail);
         },
 
-        restoreSettings: function() {
-            if (localStorage.getItem("monitored") == "true") {
-                $('#monitored').bootstrapToggle('on');
-            } else {
-                $('#monitored').bootstrapToggle('off');
-            }
-
-            if (localStorage.getItem("minAvail") !== null) $('#minAvail').val(localStorage.getItem("minAvail"));
-        },
+        // restoreSettings: function() {
+        //     if (localStorage.getItem("monitored") == "true") {
+        //         $('#monitored').bootstrapToggle('on');
+        //     } else {
+        //         $('#monitored').bootstrapToggle('off');
+        //     }
+        //
+        //     if (localStorage.getItem("minAvail") !== null) $('#minAvail').val(localStorage.getItem("minAvail"));
+        // },
     },
 };

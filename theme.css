@@ -91,6 +91,11 @@ h2 span{
      padding-bottom: auto;
 }
 
+.vbottom {
+	vertical-align: top;
+}
+
+
 .container-fluid {
      padding-bottom: 15px;
 }
