@@ -1,18 +1,18 @@
+
 "use strict";
 
 class Server {
-    constructor (serverName, isActive, host, port, apikey, auth, user, password, rootpath) {
-        var self = this;
-		this.name = serverName;
-		this.isActive = isActive;
-    	this.host = host;
-    	this.port = port;
-    	this.apikey = apikey;
-    	this.auth = auth;
-    	this.user = user;
-    	this.password = password;
-    	this.rootpath = rootpath;
-    }
+	constructor (server) {
+		var self = this;
+		this.isActive = server.isActive;
+		this.host = server.configuration.host;
+		this.port = server.configuration.port;
+		this.apikey = server.configuration.apikey;
+		this.auth = server.configuration.isAuth;
+		this.user = server.configuration.auth.user;
+		this.password = server.configuration.auth.password;
+		this.rootpath = server.configuration.rootpath;
+	}
 
 	constructBaseUrl() {
 		var regex = new RegExp("https{0,1}:\/\/");
@@ -20,21 +20,21 @@ class Server {
 		if (!regex.exec(this.host)) {
 			this.host = "http://" + this.host;
 		}
-	    if (this.port === "") {
-	        return this.host;
-	    } else {
-	        return this.host + ":" + this.port;
-	    }
+		if (this.port === "") {
+			return this.host;
+		} else {
+			return this.host + ":" + this.port;
+		}
 	}
 
 	get(endpoint, params) {
-        var self = this;
+		var self = this;
 		return new Promise(function(resolve, reject) {
 			var http = new XMLHttpRequest();
 			var url = self.constructBaseUrl() + endpoint + "?" + params;
 
 			http.open("GET", url, true);
-            http.timeout = 5000;
+			http.timeout = 5000;
 			if (self.auth === "true") http.setRequestHeader("Authorization", "Basic " + btoa(self.user + ":" + self.password));
 			http.setRequestHeader("X-Api-Key", self.apikey);
 
@@ -44,29 +44,36 @@ class Server {
 						"text": JSON.parse(http.responseText),
 						"status": http.status
 					};
+					self.isActive = true;
 					resolve(results);
 				} else {
-				  switch (http.status) {
-					case 401:
-					  reject(self.name + " Unauthorised! Please check your API key or server authentication.");
-					  break;
-					case 500:
-					  reject("Failed to find movie or series! Please check you are on a valid IMDB page.");
-					  break;
-					default:
-					  reject(Error("(" + http.status + ")" + http.statusText));
-				  }
+					switch (http.status) {
+						case 401:
+						self.isActive = false;
+						reject(self.name + " Unauthorised! Please check your API key or server authentication.");
+						break;
+						case 500:
+						self.isActive = false;
+						reject("Failed to find movie or series! Please check you are on a valid IMDB page.");
+						break;
+						default:
+						self.isActive = false;
+						reject(Error("(" + http.status + ")" + http.statusText));
+					}
 				}
 			};
 
-            http.ontimeout = function(error) {
-                reject(Error(self.name + " server took too long to respond. Please check configuration."));
-            };
+			http.ontimeout = function(error) {
+				self.isActive = false;
+				reject(Error(self.name + " server took too long to respond. Please check configuration."));
+			};
 
 			http.onerror = function() {
 				if (self.name === undefined) {
+					self.isActive = false;
 					reject(Error(self.name + " could not resolve host. Please check your configuration and network settings."));
 				} else {
+					self.isActive = false;
 					reject(Error("Could not resolve " + self.name + " host. Please check your configuration and network settings."));
 				}
 			};
@@ -76,48 +83,89 @@ class Server {
 	}
 }
 
+var pulsarrConfig = {
+	"radarr": {
+		"isActive": false,
+		"configuration": {
+			"host": "",
+			"port": "",
+			"apikey": "",
+			"isAuth": false,
+			"auth": {
+				"user": "",
+				"password": "",
+			},
+			"rootpath": ""
+		},
+		"preferences": {
+			"monitored": true,
+			"minAvail": "announced",
+			"qualityProfileId": 1
+		}
+	},
+	"sonarr": {
+		"isActive": false,
+		"configuration": {
+			"host": "",
+			"port": "",
+			"apikey": "",
+			"isAuth": false,
+			"auth": {
+				"user": "",
+				"password": "",
+			},
+			"rootpath": ""
+		},
+		"preferences": {
+			"monitored": true,
+			"seriesType": "standard",
+			"qualityProfileId": 1
+		}
+	}
+};
+
 var tooltips = [
-		{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "IP address or domain name of your Sonarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Port number that Sonarr is accessible on. Sonarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Sonarr API Key. Sonarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Path to root folder where TV shows will be saved. Leave blank to use Sonarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "IP address or domain name of your Sonarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Port number that Sonarr is accessible on. Sonarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Sonarr API Key. Sonarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+	{title: "Path to root folder where TV shows will be saved. Leave blank to use Sonarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 ];
 
-var radarrServer = new Server("Radarr", false, "", "", "", false, "", "", "");
-var sonarrServer = new Server("Sonarr", false, "", "", "", false, "", "", "");
+var radarrServer = new Server(pulsarrConfig.radarr);
+var sonarrServer = new Server(pulsarrConfig.sonarr);
 
 $('#radarrAuth').on('change', function () {
-		$('#optRadarrAuth').toggleClass('hidden');
-		radarrServer.auth = !radarrServer.auth;
+	$('#optRadarrAuth').toggleClass('hidden');
+	radarrServer.auth = !radarrServer.auth;
 });
 
 $('#sonarrAuth').on('change', function () {
-		$('#optSonarrAuth').toggleClass('hidden');
-		sonarrServer.auth = !sonarrServer.auth;
+	$('#optSonarrAuth').toggleClass('hidden');
+	sonarrServer.auth = !sonarrServer.auth;
 });
 
 $(document).ready(function(){
 	restoreConfig();
-	if ((!radarrServer.isActive && !sonarrServer.isActive)) {
+	if ((!pulsarrConfig.radarr.isActive && !pulsarrConfig.sonarr.isActive)) {
 		$("#status").text("Before you can use Pulsarr, please configure at least one server.");
 	}
-    var tool_list = $('[data-tggle="tooltip"]');
-    for(var i = 0; i < tool_list.length; i++){
-        tool_list.eq(i).tooltip(tooltips[i]);
-    }
+	var tool_list = $('[data-tggle="tooltip"]');
+	for(var i = 0; i < tool_list.length; i++){
+		tool_list.eq(i).tooltip(tooltips[i]);
+	}
 });
 
 $('#save').click(function() {
-    $("#popup").fadeTo("fast", 0.5);
-    $("#spin").spin();
-    $("#page *").prop('disabled', true);
-    $("#save").toggleClass("unclickable");
+	$("#popup").fadeTo("fast", 0.5);
+	$("#spin").spin();
+	$("#page *").prop('disabled', true);
+	$("#save").toggleClass("unclickable");
 	readInputs();
 
 	testConfig(radarrServer.host !== "", sonarrServer.host !== "");
@@ -135,9 +183,9 @@ function testConfig(radarr, sonarr) {
 		}).catch(function(error) {
 			$("#status").text(error);
 			$("#page *").prop('disabled', false);
-	        $("#save").toggleClass("unclickable");
-	        $("#popup").stop(true).fadeTo('fast', 1);
-	        $("#spin").spin(false);
+			$("#save").toggleClass("unclickable");
+			$("#popup").stop(true).fadeTo('fast', 1);
+			$("#spin").spin(false);
 		});
 	} else {
 		$("#status").text("Please configure at least one server!");
@@ -149,13 +197,13 @@ function testConfig(radarr, sonarr) {
 }
 
 function readInputs() {
-    radarrServer.host = document.getElementById('radarrHost').value.trim();
-    radarrServer.port = document.getElementById('radarrPort').value.trim();
-    radarrServer.apikey = document.getElementById('radarrApiKey').value.trim();
-    if (radarrServer.auth){
-    	radarrServer.user = document.getElementById('radarrUser').value.trim();
-    	radarrServer.password = document.getElementById('radarrPassword').value.trim();
-    }
+	radarrServer.host = document.getElementById('radarrHost').value.trim();
+	radarrServer.port = document.getElementById('radarrPort').value.trim();
+	radarrServer.apikey = document.getElementById('radarrApiKey').value.trim();
+	if (radarrServer.auth){
+		radarrServer.user = document.getElementById('radarrUser').value.trim();
+		radarrServer.password = document.getElementById('radarrPassword').value.trim();
+	}
 	radarrServer.rootpath = document.getElementById('radarrRootPath').value.trim();
 
 	sonarrServer.host = document.getElementById('sonarrHost').value.trim();
@@ -169,64 +217,56 @@ function readInputs() {
 }
 
 function saveConfig() {
-	localStorage.setItem("radarrConfig", JSON.stringify(radarrServer));
-	localStorage.setItem("sonarrConfig", JSON.stringify(sonarrServer));
+	pulsarrConfig.radarr.isActive = radarrServer.isActive;
+	pulsarrConfig.radarr.configuration.host = radarrServer.host;
+	pulsarrConfig.radarr.configuration.port = radarrServer.port;
+	pulsarrConfig.radarr.configuration.apikey = radarrServer.apikey;
+	pulsarrConfig.radarr.configuration.isAuth = radarrServer.auth;
+	pulsarrConfig.radarr.configuration.auth.user = radarrServer.user;
+	pulsarrConfig.radarr.configuration.auth.password = radarrServer.password;
+	pulsarrConfig.radarr.configuration.rootpath = radarrServer.rootpath;
 
-    $("#status").text("Sucess! Configuration saved.");
-    $("#page *").prop('disabled', false);
-    $("#save").toggleClass("unclickable");
-    setTimeout(function() {
-        $("#status").text("");
-        window.close();
-    }, 1500);
+	pulsarrConfig.sonarr.isActive = sonarrServer.isActive;
+	pulsarrConfig.sonarr.configuration.host = sonarrServer.host;
+	pulsarrConfig.sonarr.configuration.port = sonarrServer.port;
+	pulsarrConfig.sonarr.configuration.apikey = sonarrServer.apikey;
+	pulsarrConfig.sonarr.configuration.isAuth = sonarrServer.auth;
+	pulsarrConfig.sonarr.configuration.auth.user = sonarrServer.user;
+	pulsarrConfig.sonarr.configuration.auth.password = sonarrServer.password;
+	pulsarrConfig.sonarr.configuration.rootpath = sonarrServer.rootpath;
+
+	localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
+
+	$("#status").text("Sucess! Configuration saved.");
+	$("#page *").prop('disabled', false);
+	$("#save").toggleClass("unclickable");
+	setTimeout(function() {
+		$("#status").text("");
+		window.close();
+	}, 1500);
 }
 
 function restoreConfig() {
-	if (localStorage.getItem("radarrConfig")) {
-		var radarrConfig = JSON.parse(localStorage.getItem("radarrConfig"));
-		radarrServer = new Server(
-			"Radarr",
-			true,
-			radarrConfig.host,
-			radarrConfig.port,
-			radarrConfig.apikey,
-			radarrConfig.auth,
-			radarrConfig.user,
-			radarrConfig.password,
-			radarrConfig.rootpath
-		);
-	}
-	if (localStorage.getItem("sonarrConfig")) {
-		var sonarrConfig = JSON.parse(localStorage.getItem("sonarrConfig"));
-		sonarrServer = new Server(
-			"Sonarr",
-			true,
-			sonarrConfig.host,
-			sonarrConfig.port,
-			sonarrConfig.apikey,
-			sonarrConfig.auth,
-			sonarrConfig.user,
-			sonarrConfig.password,
-			sonarrConfig.rootpath
-		);
+	if (localStorage.getItem("pulsarrConfig")) {
+		pulsarrConfig = JSON.parse(localStorage.getItem("pulsarrConfig"));
 	}
 
-	$('#radarrHost').val(radarrServer.host);
-	$('#radarrPort').val(radarrServer.port);
-	$('#radarrApiKey').val(radarrServer.apikey);
-	$('#radarrAuth').prop('checked', radarrServer.auth);
-	if (radarrServer.auth) $('#optRadarrAuth').removeClass('hidden');
-	$('#radarrUser').val(radarrServer.user);
-	$('#radarrPassword').val(radarrServer.password);
-	$('#radarrRootPath').val(radarrServer.rootpath);
+	$('#radarrHost').val(pulsarrConfig.radarr.configuration.host);
+	$('#radarrPort').val(pulsarrConfig.radarr.configuration.port);
+	$('#radarrApiKey').val(pulsarrConfig.radarr.configuration.apikey);
+	$('#radarrAuth').prop('checked', pulsarrConfig.radarr.configuration.isAuth);
+	if (pulsarrConfig.radarr.configuration.isAuth) $('#optRadarrAuth').removeClass('hidden');
+	$('#radarrUser').val(pulsarrConfig.radarr.configuration.auth.user);
+	$('#radarrPassword').val(pulsarrConfig.radarr.configuration.auth.password);
+	$('#radarrRootPath').val(pulsarrConfig.radarr.configuration.rootpath);
 
 
-	$('#sonarrHost').val(sonarrServer.host);
-	$('#sonarrPort').val(sonarrServer.port);
-	$('#sonarrApiKey').val(sonarrServer.apikey);
- 	$('#sonarrAuth').prop('checked', sonarrServer.auth);
-	if (sonarrServer.auth) $('#optSonarrAuth').removeClass('hidden');
-	$('#sonarrUser').val(sonarrServer.user);
-	$('#sonarrPassword').val(sonarrServer.password);
-	$('#sonarrRootPath').val(sonarrServer.rootpath);
+	$('#sonarrHost').val(pulsarrConfig.sonarr.configuration.host);
+	$('#sonarrPort').val(pulsarrConfig.sonarr.configuration.port);
+	$('#sonarrApiKey').val(pulsarrConfig.sonarr.configuration.apikey);
+		$('#sonarrAuth').prop('checked', pulsarrConfig.sonarr.configuration.isAuth);
+	if (pulsarrConfig.sonarr.configuration.isAuth) $('#optSonarrAuth').removeClass('hidden');
+	$('#sonarrUser').val(pulsarrConfig.sonarr.configuration.auth.user);
+	$('#sonarrPassword').val(pulsarrConfig.sonarr.configuration.auth.password);
+	$('#sonarrRootPath').val(pulsarrConfig.sonarr.configuration.rootpath);
 }

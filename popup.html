@@ -73,21 +73,12 @@
                     <label class="textpadding">Min Avail</label>
                 </div>
                 <div class="col-xs-8 vcenter">
-                    <select id="minAvail" class="form-control x-profile">
+                    <select id="lstMinAvail" class="form-control x-profile">
                         <option value="announced">Announced</option>
                         <option value="inCinemas">In Cinemas</option>
                         <option value="released">Physical/Web</option>
                         <option value="preDB">Pre DB</option>
                     </select>
-                </div>
-            </div>
-
-            <div id="optProfile" class="row internal-container hidden">
-                <div class="col-xs-4 vcenter">
-                    <label class="textpadding">Profile</label>
-                </div>
-                <div class="col-xs-8 vcenter">
-                    <select id="profile" class="form-control x-profile"></select>
                 </div>
             </div>
 
@@ -101,6 +92,15 @@
                         <option value="daily">Daily</option>
                         <option value="anime">Anime</option>
                     </select>
+                </div>
+            </div>
+
+            <div id="optProfile" class="row internal-container hidden">
+                <div class="col-xs-4 vcenter">
+                    <label class="textpadding">Profile</label>
+                </div>
+                <div class="col-xs-8 vcenter">
+                    <select id="lstProfile" class="form-control x-profile"></select>
                 </div>
             </div>
         </div>
@@ -118,7 +118,7 @@
             	<div class="btn-group">
 	                <button id="btnAdd" class="btn button" title="Add">
 	                    <i class="fa fa-plus" aria-hidden="true"></i>
-	                    Add Movie
+	                    <span id="lblAdd"></span>
 	                </button>
 	                <button id="btnAddSearch" class="btn button" title="Add and Search for movie">
 	        	        <i class="fa fa-search"></i>

@@ -25,6 +25,7 @@ class Pulsarr {
                 $("#optMonitored").removeClass("hidden");
                 $("#optMinAvail").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
+                $('#lblAdd').text("Add Movie");
 
                 radarr.getPath().then(function(response) {addPath = response;});
 
@@ -57,9 +58,9 @@ class Pulsarr {
                 $('#btnAdd').on('click', function() {
                     radarr.addMovie(
                         media.movie.text[0],
-                        $('#profile').val(),
+                        $('#lstProfile').val(),
                         $("#monitored").prop('checked'),
-                        $('#minAvail').val(),
+                        $('#lstMinAvail').val(),
                         false,
                         addPath
                     );
@@ -68,9 +69,9 @@ class Pulsarr {
                 $('#btnAddSearch').on('click', function() {
                     radarr.addMovie(
                         media.movie.text[0],
-                        $('#profile').val(),
+                        $('#lstProfile').val(),
                         $("#monitored").prop('checked'),
-                        $('#minAvail').val(),
+                        $('#lstMinAvail').val(),
                         true,
                         addPath
                       );
@@ -82,6 +83,7 @@ class Pulsarr {
                 $("#optMonitored").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
                 $("#optSeriesType").removeClass("hidden");
+                $('#lblAdd').text("Add Series");
 
                 sonarr.getPath().then(function(response) {addPath = response;});
 
@@ -113,11 +115,10 @@ class Pulsarr {
 
                 $('#btnAdd').on('click', function() {
                     sonarr.addSeries(
-                    media.series.text[0],
-                        $('#profile').val(),
-                        "standard",
+                        media.series.text[0],
+                        $('#lstProfile').val(),
+                        ('#lstSeriesType').val(),
                         $("#monitored").prop('checked'),
-                        $('#minAvail').val(),
                         false,
                         addPath
                     );
@@ -126,10 +127,9 @@ class Pulsarr {
                 $('#btnAddSearch').on('click', function() {
                     sonarr.addSeries(
                         media.series.text[0],
-                        $('#profile').val(),
-                        "standard",
+                        $('#lstProfile').val(),
+                        ('#lstSeriesType').val(),
                         $("#monitored").prop('checked'),
-                        $('#minAvail').val(),
                         true,
                         addPath
                       );
@@ -318,15 +318,15 @@ class Server {
 }
 
 class RadarrServer extends Server {
-    constructor() {
+    constructor(host,port,apikey,auth,user,password,rootpath) {
         super(
-            JSON.parse(localStorage.getItem("radarrConfig")).host,
-            JSON.parse(localStorage.getItem("radarrConfig")).port,
-            JSON.parse(localStorage.getItem("radarrConfig")).apikey,
-            JSON.parse(localStorage.getItem("radarrConfig")).auth,
-            JSON.parse(localStorage.getItem("radarrConfig")).user,
-            JSON.parse(localStorage.getItem("radarrConfig")).password,
-            JSON.parse(localStorage.getItem("radarrConfig")).rootpath
+            host,
+            port,
+            apikey,
+            auth,
+            user,
+            password,
+            rootpath
         );
     }
 
@@ -347,7 +347,7 @@ class RadarrServer extends Server {
             $('#monitored').bootstrapToggle('off');
         }
 
-        if (radarrSettings.minAvail !== null) $('#minAvail').val(radarrSettings.minAvail);
+        if (radarrSettings.minAvail !== null) $('#lstProfile').val(radarrSettings.minAvail);
     }
 
     addMovie(movie, qualityId, monitored, minAvail, addSearch, folderPath) {
@@ -405,12 +405,12 @@ class RadarrServer extends Server {
         this.get("/api/profile", "").then(function(response) {
             var profiles = response.text;
             for (var i = 0; i < profiles.length; i++) {
-                $('#profile')
+                $('#lstProfile')
                     .append($('<option>', { value: profiles[i].id })
                     .text(profiles[i].name));
             }
-            if (radarrSettings.profile !== null && (radarrSettings.profile <= $('#profile').children('option').length)) {
-                $('#profile').prop('selectedIndex', radarrSettings.profile - 1);
+            if (radarrSettings.profile !== null && (radarrSettings.profile <= $('#lstProfile').children('option').length)) {
+                $('#lstProfile').prop('selectedIndex', radarrSettings.profile - 1);
             }
         }).catch(function(error) {
             pulsarr.info("profilesById Failed! " + error);
@@ -435,15 +435,15 @@ class RadarrServer extends Server {
 }
 
 class SonarrServer extends Server {
-    constructor() {
+    constructor(host, port, apikey, auth, user, password, rootpath) {
         super(
-            JSON.parse(localStorage.getItem("sonarrConfig")).host,
-            JSON.parse(localStorage.getItem("sonarrConfig")).port,
-            JSON.parse(localStorage.getItem("sonarrConfig")).apikey,
-            JSON.parse(localStorage.getItem("sonarrConfig")).auth,
-            JSON.parse(localStorage.getItem("sonarrConfig")).user,
-            JSON.parse(localStorage.getItem("sonarrConfig")).password,
-            JSON.parse(localStorage.getItem("sonarrConfig")).rootpath
+            host,
+            port,
+            apikey,
+            auth,
+            user,
+            password,
+            rootpath
         );
     }
 
@@ -487,7 +487,7 @@ class SonarrServer extends Server {
             }
         };
 
-        this.post("/api/movie", newSeries).then(function(response) {
+        this.post("/api/series", newSeries).then(function(response) {
             radarrExt.popup.saveSettings(monitored, qualityId);
             $("#popup").stop(true).fadeTo('fast', 1);
             $('#serverResponse').text("Series added to Sonarr!");
@@ -525,12 +525,12 @@ class SonarrServer extends Server {
         this.get("/api/profile", "").then(function(response) {
             var profiles = response.text;
             for (var i = 0; i < profiles.length; i++) {
-                $('#profile')
+                $('#lstProfile')
                     .append($('<option>', { value: profiles[i].id })
                     .text(profiles[i].name));
             }
-            if (localStorage.getItem("profile") !== null && (localStorage.getItem("profile") <= $('#profile').children('option').length)) {
-                $('#profile').prop('selectedIndex', localStorage.getItem("profile") - 1);
+            if (localStorage.getItem("profile") !== null && (localStorage.getItem("profile") <= $('#lstProfile').children('option').length)) {
+                $('#lstProfile').prop('selectedIndex', localStorage.getItem("profile") - 1);
             }
         }).catch(function(error) {
             pulsarr.info("profilesById Failed! " + error);
@@ -552,23 +552,62 @@ class SonarrServer extends Server {
             });
         });
     }
+
+//     monitorOptions(optMonitor, noOfSeasons) {
+//         switch (optMonitor) {
+//             case "all":
+//                 return {
+//                     "seriesMonitored": true,
+//
+//                 }
+// ;        }
+//     }
 }
 
 function init() {
+    // $("#popup").prop('disabled', true);
     $("#popup").fadeTo("fast", 0.5);
     $("#spin").spin('large');
     pulsarr = new Pulsarr();
-    radarr = new RadarrServer();
-    sonarr = new SonarrServer();
+    var radarrConfig = JSON.parse(localStorage.getItem("radarrConfig"));
+    var sonarrConfig = JSON.parse(localStorage.getItem("sonarrConfig"));
+
+    if (radarrConfig) {
+        radarr = new RadarrServer(
+            radarrConfig.host,
+            radarrConfig.port,
+            radarrConfig.apikey,
+            radarrConfig.auth,
+            radarrConfig.user,
+            radarrConfig.password
+        );
+    } else {
+        radarr = new RadarrServer("","","",false,"","","");
+    }
+
+    if (sonarrConfig) {
+        sonarr = new SonarrServer(
+            sonarrConfig.host,
+            sonarrConfig.port,
+            sonarrConfig.apikey,
+            sonarrConfig.auth,
+            sonarrConfig.user,
+            sonarrConfig.password
+        );
+    } else {
+        sonarr = new SonarrServer("","","",false,"","","");
+    }
+
+    if (!localStorage.getItem("radarrConfig") && !localStorage.getItem("sonarrConfig")) {
+        chrome.runtime.openOptionsPage();
+    }
 }
 
 init();
 
 getCurrentTabUrl(function(url) {
     // important note: catch and then are reversed in this section
-    if (radarr.host === null || radarr.host === "") {
-        chrome.runtime.openOptionsPage();
-    } else if (pulsarr.isImdb(url)) {
+    if (pulsarr.isImdb(url)) {
         var imdbid = pulsarr.extractIMDBID(url);
         pulsarr.TvdbidFromImdbid(imdbid).then(function(response) {
             var tvdbid = response;
