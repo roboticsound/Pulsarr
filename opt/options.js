@@ -4,7 +4,7 @@
 class Server {
 	constructor (server) {
 		var self = this;
-		this.isActive = server.isActive;
+		this.isEnabled = server.isEnabled;
 		this.host = server.configuration.host;
 		this.port = server.configuration.port;
 		this.apikey = server.configuration.apikey;
@@ -44,36 +44,36 @@ class Server {
 						"text": JSON.parse(http.responseText),
 						"status": http.status
 					};
-					self.isActive = true;
+					self.isEnabled = true;
 					resolve(results);
 				} else {
 					switch (http.status) {
 						case 401:
-						self.isActive = false;
+						self.isEnabled = false;
 						reject(self.name + " Unauthorised! Please check your API key or server authentication.");
 						break;
 						case 500:
-						self.isActive = false;
+						self.isEnabled = false;
 						reject("Failed to find movie or series! Please check you are on a valid IMDB page.");
 						break;
 						default:
-						self.isActive = false;
+						self.isEnabled = false;
 						reject(Error("(" + http.status + ")" + http.statusText));
 					}
 				}
 			};
 
 			http.ontimeout = function(error) {
-				self.isActive = false;
+				self.isEnabled = false;
 				reject(Error(self.name + " server took too long to respond. Please check configuration."));
 			};
 
 			http.onerror = function() {
 				if (self.name === undefined) {
-					self.isActive = false;
+					self.isEnabled = false;
 					reject(Error(self.name + " could not resolve host. Please check your configuration and network settings."));
 				} else {
-					self.isActive = false;
+					self.isEnabled = false;
 					reject(Error("Could not resolve " + self.name + " host. Please check your configuration and network settings."));
 				}
 			};
@@ -85,7 +85,7 @@ class Server {
 
 var pulsarrConfig = {
 	"radarr": {
-		"isActive": false,
+		"isEnabled": false,
 		"configuration": {
 			"host": "",
 			"port": "",
@@ -104,7 +104,7 @@ var pulsarrConfig = {
 		}
 	},
 	"sonarr": {
-		"isActive": false,
+		"isEnabled": false,
 		"configuration": {
 			"host": "",
 			"port": "",
@@ -152,7 +152,7 @@ $('#sonarrAuth').on('change', function () {
 
 $(document).ready(function(){
 	restoreConfig();
-	if ((!pulsarrConfig.radarr.isActive && !pulsarrConfig.sonarr.isActive)) {
+	if (!(pulsarrConfig.radarr.isEnabled || pulsarrConfig.sonarr.isEnabled)) {
 		$("#status").text("Before you can use Pulsarr, please configure at least one server.");
 	}
 	var tool_list = $('[data-tggle="tooltip"]');
@@ -217,7 +217,7 @@ function readInputs() {
 }
 
 function saveConfig() {
-	pulsarrConfig.radarr.isActive = radarrServer.isActive;
+	pulsarrConfig.radarr.isEnabled = radarrServer.isEnabled;
 	pulsarrConfig.radarr.configuration.host = radarrServer.host;
 	pulsarrConfig.radarr.configuration.port = radarrServer.port;
 	pulsarrConfig.radarr.configuration.apikey = radarrServer.apikey;
@@ -226,7 +226,7 @@ function saveConfig() {
 	pulsarrConfig.radarr.configuration.auth.password = radarrServer.password;
 	pulsarrConfig.radarr.configuration.rootpath = radarrServer.rootpath;
 
-	pulsarrConfig.sonarr.isActive = sonarrServer.isActive;
+	pulsarrConfig.sonarr.isEnabled = sonarrServer.isEnabled;
 	pulsarrConfig.sonarr.configuration.host = sonarrServer.host;
 	pulsarrConfig.sonarr.configuration.port = sonarrServer.port;
 	pulsarrConfig.sonarr.configuration.apikey = sonarrServer.apikey;
@@ -264,7 +264,7 @@ function restoreConfig() {
 	$('#sonarrHost').val(pulsarrConfig.sonarr.configuration.host);
 	$('#sonarrPort').val(pulsarrConfig.sonarr.configuration.port);
 	$('#sonarrApiKey').val(pulsarrConfig.sonarr.configuration.apikey);
-		$('#sonarrAuth').prop('checked', pulsarrConfig.sonarr.configuration.isAuth);
+	$('#sonarrAuth').prop('checked', pulsarrConfig.sonarr.configuration.isAuth);
 	if (pulsarrConfig.sonarr.configuration.isAuth) $('#optSonarrAuth').removeClass('hidden');
 	$('#sonarrUser').val(pulsarrConfig.sonarr.configuration.auth.user);
 	$('#sonarrPassword').val(pulsarrConfig.sonarr.configuration.auth.password);

@@ -20,9 +20,9 @@
 
   "page_action": {
     "default_icon": {
-      "16": "/img/icons/radarr/16.png",
-      "32": "/img/icons/radarr/32.png",
-      "48": "/img/icons/radarr/48.png"
+      "16": "/img/icons/pulsarr/16.png",
+      "32": "/img/icons/pulsarr/32.png",
+      "48": "/img/icons/pulsarr/48.png"
     },
     "default_popup": "popup.html",
     "default_title": "Add to Radarr"
@@ -32,6 +32,8 @@
     "page": "/opt/options.html",
     "chrome_style": false
   },
+
+  "content_security_policy": "script-src 'self'; object-src 'self' ",
 
   "permissions": [
     "activeTab",
