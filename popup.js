@@ -46,6 +46,9 @@ class Pulsarr {
                 $('body').changepanel(media.movie.text[0]);
 
                 if (media.existingSlug !== "") {
+                    $("#optMonitored").addClass("hidden");
+                    $("#optMinAvail").addClass("hidden");
+                    $("#optProfile").addClass("hidden");
                     $('#btnExists').removeClass('hidden');
                     $('#btnAdd').addClass('hidden');
                     $('#btnAddSearch').addClass('hidden');
@@ -105,6 +108,9 @@ class Pulsarr {
                 $('body').changepanel(media.series.text[0]);
 
                 if (media.existingSlug !== "") {
+                    $("#optMonitored").addClass("hidden");
+                    $("#optProfile").addClass("hidden");
+                    $("#optSeriesType").addClass("hidden");
                     $('#btnExists').removeClass('hidden');
                     $('#btnAdd').addClass('hidden');
                     $('#btnAddSearch').addClass('hidden');
@@ -366,7 +372,7 @@ class RadarrServer extends Server {
             $('#monitored').bootstrapToggle('off');
         }
 
-        $('#lstProfile').val(pulsarrConfig.radarr.preferences.minAvaill);
+        $('#lstMinAvail').val(pulsarrConfig.radarr.preferences.minAvail);
     }
 
     addMovie(movie, qualityId, monitored, minAvail, addSearch, folderPath) {
