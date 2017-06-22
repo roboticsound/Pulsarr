@@ -155,7 +155,7 @@ $(document).ready(function(){
 	if (!(pulsarrConfig.radarr.isEnabled || pulsarrConfig.sonarr.isEnabled)) {
 		$("#status").text("Before you can use Pulsarr, please configure at least one server.");
 	}
-	var tool_list = $('[data-tggle="tooltip"]');
+	var tool_list = $('[data-toggle="tooltip"]');
 	for(var i = 0; i < tool_list.length; i++){
 		tool_list.eq(i).tooltip(tooltips[i]);
 	}
