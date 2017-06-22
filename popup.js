@@ -27,6 +27,8 @@ class Pulsarr {
             case "movie":
                 $('#serverName').text("Add to Radarr");
                 $('#logo').attr("src", "/img/icons/radarr/32.png");
+                $('#logo').attr("title", "Open Radarr");
+                $('#serverHome').attr("href", radarr.constructBaseUrl());
                 $("#optSmConfig").removeClass("hidden");
                 $("#optMonitored").removeClass("hidden");
                 $("#optMinAvail").removeClass("hidden");
@@ -84,6 +86,8 @@ class Pulsarr {
             case "series":
                 $('#serverName').text("Add to Sonarr");
                 $('#logo').attr("src", "/img/icons/sonarr/32.png");
+                $('#logo').attr("title", "Open Sonarr");
+                $('#serverHome').attr("href", sonarr.constructBaseUrl());
                 $("#optSmConfig").removeClass("hidden");
                 $("#optMonitored").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
