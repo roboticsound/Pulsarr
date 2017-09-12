@@ -6,13 +6,11 @@ var apikey = "";
 var auth = false;
 var user = "";
 var password = "";
-var moviePath = "";
 var tooltips = [
 		{title: "IP address or domain name of your Radarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 		{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 		{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-		{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
+		{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}}
 ];
 
 $('#chkAuth').on('change', function () {
@@ -60,7 +58,6 @@ function readInputs() {
     		user = document.getElementById('user').value.trim();
     		password = document.getElementById('password').value.trim();
     }
-		moviePath = document.getElementById('txtMoviePath').value.trim();
 }
 
 function constructBaseUrl(host, port) {
@@ -83,16 +80,16 @@ function testApi(url) {
             if (this.status === 200) {
                 resolve(http.statusText);
             } else {
-							switch (http.status) {
-								case 400:
-									reject(Error("Failed to add movie! Please check it is not already in your collection."));
-									break;
-								case 401:
-									reject("Unauthorised! Please check your API key or server authentication.");
-									break;
-								default:
-									reject(Error("(" + http.status + ")" + http.statusText));
-							}
+                switch (http.status) {
+                    case 400:
+                        reject(Error("Failed to add movie! Please check it is not already in your collection."));
+                        break;
+                    case 401:
+                        reject("Unauthorised! Please check your API key or server authentication.");
+                        break;
+                    default:
+                        reject(Error("(" + http.status + ")" + http.statusText));
+                }
             }
         };
 
@@ -121,7 +118,6 @@ function saveConfig() {
     localStorage.setItem("auth", auth);
     localStorage.setItem("user", user);
     localStorage.setItem("password", password);
-		localStorage.setItem("moviePath", moviePath);
 
     $("#status").text("Sucess! Configuration saved.");
     $("#page *").prop('disabled', false);
@@ -139,15 +135,13 @@ function restoreConfig() {
     auth = localStorage.getItem("auth") == "true";
     user = localStorage.getItem("user");
     password = localStorage.getItem("password");
-		moviePath = localStorage.getItem("moviePath");
 
-		$('#host').val(host);
-		$('#port').val(port);
-		$('#radarrapikey').val(apikey);
+    $('#host').val(host);
+    $('#port').val(port);
+    $('#radarrapikey').val(apikey);
 
     $('#chkAuth').prop('checked', auth);
     if (auth) $('#optAuth').removeClass('hidden');
-		$('#user').val(user);
-		$('#password').val(password);
-		$('#txtMoviePath').val(moviePath);
+    $('#user').val(user);
+    $('#password').val(password);
 }

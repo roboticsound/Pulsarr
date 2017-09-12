@@ -87,8 +87,8 @@ function extractIMDBID(url) {
 var radarrExt = {
 
     config: {
-        getRootPath: function() {
-            return radarrExt.server.get("rootfolder", "").text[0].path;
+        getRootPaths: function() {
+            return radarrExt.server.get("rootfolder", "").text.map(f => f.path);
         },
 
         getHost: function() {
@@ -116,18 +116,6 @@ var radarrExt = {
         getAuth: function() {
             return btoa(localStorage.getItem("user") + ":" + localStorage.getItem("password"));
         },
-
-        getMoviePath: function() {
-            return new Promise(function(resolve, reject) {
-                if (localStorage.getItem('moviePath') !== "") {
-                    resolve(localStorage.getItem('moviePath'));
-                } else {
-                    radarrExt.server.get("rootfolder", "").then(function(response) {
-                        resolve(response.text[0].path);
-                    });
-                }
-            });
-        }
     },
 
     server: {
@@ -212,11 +200,10 @@ var radarrExt = {
 
     popup: {
         init: function(movie, slug) {
-            var addPath;
-  			    radarrExt.config.getMoviePath().then(function(response) {addPath = response;});
             $('#description').html(movie.text[0].overview);
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
+                radarrExt.popup.folderPathsById();
                 radarrExt.popup.restoreSettings();
             }
             $('body').changepanel(movie.text[0]);
@@ -242,12 +229,12 @@ var radarrExt = {
 
             $('#btnAdd').on('click', function() {
                 radarrExt.addMovie(
-                movie.text[0],
+                    movie.text[0],
                     $('#profile').val(),
                     $("#monitored").prop('checked'),
                     $('#minAvail').val(),
                     false,
-                    addPath
+                    $('#folderPath').val()
                 );
             });
 
@@ -258,7 +245,7 @@ var radarrExt = {
                     $("#monitored").prop('checked'),
                     $('#minAvail').val(),
                     true,
-                    addPath
+                    $('#folderPath').val()
                   );
             });
         },
@@ -268,10 +255,11 @@ var radarrExt = {
             $("#serverResponse").removeClass("hidden");
         },
 
-        saveSettings: function(monitored, qualityId, minAvail) {
+        saveSettings: function(monitored, qualityId, minAvail, folderPath) {
             localStorage.setItem("monitored", monitored);
             localStorage.setItem("profile", qualityId);
             localStorage.setItem("minAvail", minAvail);
+            localStorage.setItem("folderPath", folderPath);
         },
 
         restoreSettings: function() {
@@ -297,6 +285,22 @@ var radarrExt = {
                 }
             }).catch(function(error) {
                 radarrExt.popup.info("profilesById Failed! " + error);
+            });
+        },
+
+        folderPathsById: function() {
+            radarrExt.server.get("rootfolder", "").then(function(response) {
+                var folderPaths = response.text;
+                for (var i = 0; i < folderPaths.length; i++) {
+                    $('#folderPath')
+                        .append($('<option>', { value: folderPaths[i].path })
+                        .text(folderPaths[i].path));
+                    if (localStorage.getItem("folderPath") !== null && (localStorage.getItem("folderPath") === folderPaths[i].path)) {
+                        $('#folderPath').prop('selectedIndex', i);
+                    }
+                }
+            }).catch(function(error) {
+                radarrExt.popup.info("folderPathsById Failed! " + error);
             });
         }
     },
@@ -360,9 +364,10 @@ var radarrExt = {
                 "searchForMovie": addSearch
             }
         };
+        chrome.extension.getBackgroundPage().console.log(newMovie);
 
         radarrExt.server.post("movie", newMovie).then(function(response) {
-            radarrExt.popup.saveSettings(monitored, qualityId, minAvail);
+            radarrExt.popup.saveSettings(monitored, qualityId, minAvail, folderPath);
             $("#popup").stop(true).fadeTo('fast', 1);
             $('#serverResponse').text("Movie added to Radarr!");
             $("#serverResponse").removeClass("hidden");
