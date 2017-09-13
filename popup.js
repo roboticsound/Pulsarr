@@ -203,7 +203,7 @@ var radarrExt = {
             $('#description').html(movie.text[0].overview);
             if (movie.status == 200) {
                 radarrExt.popup.profilesById();
-                radarrExt.popup.folderPathsById();
+                radarrExt.popup.folderPathsByPath();
                 radarrExt.popup.restoreSettings();
             }
             $('body').changepanel(movie.text[0]);
@@ -288,7 +288,7 @@ var radarrExt = {
             });
         },
 
-        folderPathsById: function() {
+        folderPathsByPath: function() {
             radarrExt.server.get("rootfolder", "").then(function(response) {
                 var folderPaths = response.text;
                 for (var i = 0; i < folderPaths.length; i++) {
@@ -300,7 +300,7 @@ var radarrExt = {
                     }
                 }
             }).catch(function(error) {
-                radarrExt.popup.info("folderPathsById Failed! " + error);
+                radarrExt.popup.info("folderPathsByPath Failed! " + error);
             });
         }
     },
@@ -364,7 +364,6 @@ var radarrExt = {
                 "searchForMovie": addSearch
             }
         };
-        chrome.extension.getBackgroundPage().console.log(newMovie);
 
         radarrExt.server.post("movie", newMovie).then(function(response) {
             radarrExt.popup.saveSettings(monitored, qualityId, minAvail, folderPath);
