@@ -1,110 +1,211 @@
 ﻿﻿<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Pulsarr Configuration</title>
-    <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="../lib/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../lib/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="../lib/css/awesome-bootstrap-checkbox.css">
-    <link rel="stylesheet" type="text/css" href="../theme.css">
+    <head>
+        <title>Pulsarr Configuration</title>
+        <!-- CSS -->
+        <link rel="stylesheet" type="text/css" href="../lib/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="../lib/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="../lib/css/awesome-bootstrap-checkbox.css">
+        <link rel="stylesheet" type="text/css" href="../theme.css">
+        <link rel="stylesheet" type="text/css" href="../lib/css/jquery.mCustomScrollbar.css">
 
-    <!-- jQuery -->
-    <script type="text/javascript" src="../lib/js/jquery-3.2.0.min.js"></script>
+        <!-- jQuery -->
+        <script type="text/javascript" src="../lib/js/jquery-3.2.0.min.js"></script>
 
-    <!-- JavaScript -->
-    <script type="text/javascript" src="../lib/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../lib/js/spin.min.js"></script>
-    <script type="text/javascript" src="../lib/js/jquery.spin.js"></script>
+        <!-- JavaScript -->
+        <script type="text/javascript" src="../lib/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="../lib/js/spin.min.js"></script>
+        <script type="text/javascript" src="../lib/js/jquery.spin.js"></script>
+        <script type="text/javascript" src="../lib/js/jquery.mCustomScrollbar.js"></script>
+    </head>
 
-</head>
-<body>
-    <div id="popup" class="container-fluid" style="max-width: 400px;">
-        <div id="spin"></div>
-        <div id="page">
-            <div class="row">
-                <div class="col-xs-12">
-                    <h3>Host:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <input type="text" id="host" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
-                </div>
+    <body>
+        <div id="popup" class="container-fluid" style="max-width: 400px;">
+            <div id="spin"></div>
 
-            </div>
-             <div class="row">
-                <div class="col-xs-12">
-                     <div class="checkbox checkbox-success">
-                        <input id="chkAuth" type="checkbox">
-						            <label for="chkAuth">
-                            Basic Auth?
-                        </label><i class="fa fa-question-circle icon-large" data-toggle="tooltip" aria-hidden="true"></i>
+            <div id="page">
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#radarrConfig">Radarr</a></li>
+                    <li><a data-toggle="tab" href="#sonarrConfig">Sonarr</a></li>
+                </ul>
+
+                <div class="tab-content">
+
+                    <div id="radarrConfig" class="tab-pane fade in active">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Host:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="radarrHost" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="checkbox checkbox-success">
+                                    <input id="radarrAuth" type="checkbox">
+            						<label for="radarrAuth">
+                                        Basic Auth?
+                                    </label><i class="fa fa-question-circle icon-large" data-toggle="tooltip" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="optRadarrAuth" class="hidden">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <h4>User:</h4>
+            	                </div>
+            	                <div class="col-xs-6">
+            	                    <h4>Password:</h4>
+            	                </div>
+            	            </div>
+            				<div class="row">
+            	                <div class="col-xs-6">
+            	                    <input type="text" id="radarrUser" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+            	                </div>
+            	                <div class="col-xs-6">
+            	                    <input type="text" id="radarrPassword" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+            	                </div>
+            				</div>
+            			</div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Port:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="radarrPort" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>API Key:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="radarrApiKey" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Root Path:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="radarrRootPath" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sonarrConfig" class="tab-pane fade">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Host:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="sonarrHost" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="checkbox checkbox-success">
+                                    <input id="sonarrAuth" type="checkbox">
+            						<label for="sonarrAuth">
+                                        Basic Auth?
+                                    </label><i class="fa fa-question-circle icon-large" data-toggle="tooltip" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="optSonarrAuth" class="hidden">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <h4>User:</h4>
+            	                </div>
+            	                <div class="col-xs-6">
+            	                    <h4>Password:</h4>
+            	                </div>
+            	            </div>
+            				<div class="row">
+            	                <div class="col-xs-6">
+            	                    <input type="text" id="sonarrUser" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+            	                </div>
+            	                <div class="col-xs-6">
+            	                    <input type="text" id="sonarrPassword" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+            	                </div>
+            				</div>
+            			</div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Port:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="sonarrPort" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>API Key:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="sonarrApiKey" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Root Path:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="sonarrRootPath" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+                            </div>
+                        </div>
                     </div>
                 </div>
-			</div>
-			<div id="optAuth" class="hidden">
-	            <div class="row">
-	                <div class="col-xs-6">
-	                    <h4>User:</h4>
-	                </div>
-	                <div class="col-xs-6">
-	                    <h4>Password:</h4>
-	                </div>
-	            </div>
-				<div class="row">
-	                <div class="col-xs-6">
-	                    <input type="text" id="user" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
-	                </div>
-	                <div class="col-xs-6">
-	                    <input type="text" id="password" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
-	                </div>
-				</div>
-			</div>
-
-            <div class="row">
-                <div class="col-xs-12">
-                    <h3>Port:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
-                </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <input type="text" id="port" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+
+            <div class="row internal-container">
+                <div class="col-md-12 col-xs-12">
+                    <button id="save" type="button" class="btn btn-primary btn-block"><span><i class="fa fa-plus" aria-hidden="true"></i></span> Save</button>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-xs-12">
-                    <h3>API Key:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <input type="text" id="radarrapikey" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <h3>Root Path:<i class="fa fa-question-circle icon-small" data-toggle="tooltip" aria-hidden="true"></i></h3>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <input type="text" id="txtMoviePath" class="form-control x-path tt-input form-custom" autocomplete="off" spellcheck="false" dir="auto">
+            <div class="row internal-container">
+                <div class="text-center col-xs-12">
+                    <label id="status"></label>
                 </div>
             </div>
         </div>
-        <div class="row internal-container">
-            <div class="col-md-12 col-xs-12">
-                <button id="save" type="button" class="btn btn-primary btn-block"><span><i class="fa fa-plus" aria-hidden="true"></i></span> Save</button>
-            </div>
-        </div>
-        <div class="row internal-container">
-            <div class="text-center col-xs-12">
-                <label id="status"></label>
-            </div>
-        </div>
-    </div>
-    <script src="options.js"></script>
-</body>
+
+        <script src="options.js"></script>
+    </body>
 </html>
