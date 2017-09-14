@@ -1,22 +1,21 @@
 Pulsarr
 =======
 
-Browser extension (currently Chrome) for adding movies to Radarr while browsing IMDB.
+Browser extension (currently Chrome & Firefox) for adding movies to Radarr or Series' to Sonarr while browsing IMDB.
 
+## What's New
+- Initial support for Sonarr!!! (finally)
+- Lots of other changes in the background
 
 ## Current features
-
-- Add movies to [Radarr](https://radarr.video) while browsing IMDB pages.
-- Select quality profile, availability and whether to monitor the movie when added.
-- Checks if a movie is already in your collection and links to it's Radarr page.
-- Choose custom path for storing movies.
+- Add movies to [Radarr](https://radarr.video) or Series' to [Sonarr](https://sonarr.tv) while browsing IMDB pages.
+- Remember previously added settings.
 
 ## Planned features
-
 - Multi browser support
-- Support for adding series' to Sonarr
 
 ## Special thanks
-
 - Radarr team [Radarr on Github](https://github.com/Radarr/Radarr)
 - Sonarr team [Sonarr on Github](https://github.com/Sonarr/Sonarr)
+
+Bug Reports/Feature Requests https://github.com/roboticsound/Pulsarr
