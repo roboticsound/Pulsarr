@@ -1,10 +1,11 @@
 Pulsarr
 =======
 
-Browser extension (currently Chrome & Firefox) for adding movies to Radarr or Series' to Sonarr while browsing IMDB.
+Browser extension (currently Chrome & Firefox) for adding movies to Radarr or Series' to Sonarr while browsing IMDB or TVDB.
 
 ## What's New
 - Initial support for Sonarr!!! (finally)
+- Support for adding series to Sonarr from TVDB
 - Lots of other changes in the background
 
 ## Current features
