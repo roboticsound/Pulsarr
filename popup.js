@@ -1,6 +1,45 @@
 "use strict";
 var pulsarr;
-var pulsarrConfig;
+var pulsarrConfig = {
+	"radarr": {
+		"isEnabled": false,
+		"configuration": {
+			"host": "",
+			"port": "",
+			"apikey": "",
+			"isAuth": false,
+			"auth": {
+				"user": "",
+				"password": "",
+			},
+			"rootpath": ""
+		},
+		"preferences": {
+			"monitored": true,
+			"minAvail": "announced",
+			"qualityProfileId": 1
+		}
+	},
+	"sonarr": {
+		"isEnabled": false,
+		"configuration": {
+			"host": "",
+			"port": "",
+			"apikey": "",
+			"isAuth": false,
+			"auth": {
+				"user": "",
+				"password": "",
+			},
+			"rootpath": ""
+		},
+		"preferences": {
+			"monitored": true,
+			"seriesType": "standard",
+			"qualityProfileId": 1
+		}
+	}
+};
 var radarr;
 var sonarr;
 
@@ -227,8 +266,9 @@ class Pulsarr {
         localStorage.removeItem("password");
     	pulsarrConfig.radarr.configuration.rootpath = localStorage.getItem("moviePath");
         localStorage.removeItem("moviePath");
+        localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
     }
-
+    
 }
 
 class Server {
@@ -277,7 +317,6 @@ class Server {
 			var url = self.constructBaseUrl() + endpoint + "?" + params;
 
 			http.open("GET", url, true);
-            http.timeout = 15000;
 			if (self.auth === "true") http.setRequestHeader("Authorization", "Basic " + btoa(self.user + ":" + self.password));
 			http.setRequestHeader("X-Api-Key", self.apikey);
 
@@ -321,7 +360,6 @@ class Server {
             var url = self.constructBaseUrl() + endpoint;
 
             http.open("POST", url, true);
-            http.timeout = 5000;
             if (self.auth == "true") http.setRequestHeader("Authorization", "Basic " + btoa(self.user + ":" + self.password));
             http.setRequestHeader("X-Api-Key", self.apikey);
 

@@ -4,7 +4,7 @@
   "name": "Pulsarr",
   "author": "roboticsound",
   "description": "Add movies to Radarr from IMDB",
-  "version": "2.0",
+  "version": "2.0.1",
 
   "icons": {
     "16": "/img/icons/pulsarr/16.png",
