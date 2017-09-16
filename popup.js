@@ -232,10 +232,10 @@ class Pulsarr {
     }
 
     extractTVDBID(url) {
-        var regex = new RegExp("\&id\=\\d{1,7}");
+        var regex = new RegExp("\&(id|seriesid)\=\\d{1,7}");
         var tvdbid = regex.exec(url);
 
-        return (tvdbid) ? tvdbid[0].slice(4) : "";
+        return (tvdbid) ? tvdbid[0].split("=")[1]:"";
     }
 
     TvdbidFromImdbid(imdbid) {
@@ -268,7 +268,7 @@ class Pulsarr {
         localStorage.removeItem("moviePath");
         localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
     }
-    
+
 }
 
 class Server {
