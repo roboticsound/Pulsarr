@@ -211,6 +211,24 @@ class Pulsarr {
         localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
     }
 
+    portConfigToV2() {
+        pulsarrConfig.radarr.isEnabled = true;
+    	pulsarrConfig.radarr.configuration.host = localStorage.getItem("host");
+        localStorage.removeItem("host");
+    	pulsarrConfig.radarr.configuration.port = localStorage.getItem("port");
+        localStorage.removeItem("port");
+    	pulsarrConfig.radarr.configuration.apikey = localStorage.getItem("apikey");
+        localStorage.removeItem("apikey");
+    	pulsarrConfig.radarr.configuration.isAuth = localStorage.getItem("auth") == "true";
+        localStorage.removeItem("auth");
+    	pulsarrConfig.radarr.configuration.auth.user = localStorage.getItem("user");
+        localStorage.removeItem("user");
+    	pulsarrConfig.radarr.configuration.auth.password = localStorage.getItem("password");
+        localStorage.removeItem("password");
+    	pulsarrConfig.radarr.configuration.rootpath = localStorage.getItem("moviePath");
+        localStorage.removeItem("moviePath");
+    }
+
 }
 
 class Server {
@@ -276,7 +294,7 @@ class Server {
 					  reject("Unauthorised! Please check your API key or server authentication.");
 					  break;
 					case 500:
-					  reject("Failed to find movie! Please check you are on a valid IMDB movie page (not TV series).");
+					  reject("Failed fetch media info! Please check you are on a valid IMDB/TVDB movie or series page (not episode page).");
 					  break;
 					default:
 					  reject(Error("(" + http.status + ")" + http.statusText));
@@ -571,6 +589,13 @@ class SonarrServer extends Server {
 function init() {
     pulsarr = new Pulsarr();
     pulsarr.loading();
+    if (localStorage.getItem("host")) {
+        pulsarr.portConfigToV2();
+    }
+    if (!localStorage.getItem("pulsarrConfig")) {
+        chrome.runtime.openOptionsPage();
+    }
+
     pulsarrConfig = JSON.parse(localStorage.getItem("pulsarrConfig"));
 
     if (pulsarrConfig.radarr.isEnabled) {
@@ -618,9 +643,12 @@ getCurrentTabUrl(function(url) {
                 if (pulsarrConfig.radarr.isEnabled && pulsarrConfig.sonarr.isEnabled) {
                     pulsarr.info(error);
                 } else if (pulsarrConfig.radarr.isEnabled && !pulsarrConfig.sonarr.isEnabled) {
+                    pulsarr.init(blackhole);
+                    $('#optLgConfig').removeClass("hidden");
                     pulsarr.info("Unable to find movie. If this is a series, please configure a Sonarr server.");
                 } else if (!pulsarrConfig.radarr.isEnabled && pulsarrConfig.sonarr.isEnabled) {
                     pulsarr.init(blackhole);
+                    $('#optLgConfig').removeClass("hidden");
                     pulsarr.info("Unable to find series. If this is a movie, please configure a Radarr server.");
                 } else {
                     chrome.runtime.openOptionsPage();
