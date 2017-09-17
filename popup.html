@@ -1,111 +1,151 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Pulsarr</title>
-    <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="lib/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="lib/css/bootstrap-toggle.min.css">
-    <link rel="stylesheet" type="text/css" href="lib/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="theme.css">
+    <head>
+        <title>Pulsarr</title>
+        <!-- CSS -->
+        <link rel="stylesheet" type="text/css" href="lib/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="lib/css/bootstrap-toggle.min.css">
+        <link rel="stylesheet" type="text/css" href="lib/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="lib/css/jquery.scrollbar.css" />
+        <link rel="stylesheet" type="text/css" href="theme.css">
 
-    <!-- jQuery -->
-    <script type="text/javascript" src="lib/js/jquery-3.2.0.min.js"></script>
+        <!-- jQuery -->
+        <script type="text/javascript" src="lib/js/jquery-3.2.0.min.js"></script>
 
-    <!-- JavaScript -->
-    <script type="text/javascript" src="lib/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="lib/js/bootstrap-toggle.min.js"></script>
-    <script type="text/javascript" src="lib/js/spin.min.js"></script>
-    <script type="text/javascript" src="lib/js/jquery.spin.js"></script>
+        <!-- JavaScript -->
+        <script type="text/javascript" src="lib/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="lib/js/bootstrap-toggle.min.js"></script>
+        <script type="text/javascript" src="lib/js/spin.min.js"></script>
+        <script type="text/javascript" src="lib/js/jquery.spin.js"></script>
+        <script type="text/javascript" src="lib/js/jquery.scrollbar.js"></script>
 
-</head>
-<body>
-    <div id="popup" class="container">
-        <div id="page">
-            <div id="spin"></div>
+    </head>
+    <body>
+        <div id="popup" class="container">
+
             <div class="row internal-container">
-                <div class="col-xs-4" id="imagediv">
-                    <img id="image" class="img-responsive">
+                <div class="col-xs-10">
+                    <h2 style="text-align: bottom" id="serverName"></h2>
                 </div>
-                <div class="col-xs-8">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <h2 id="title"><span id="year"></span></h2>
+                <div class="col-xs-2">
+                    <a id="serverHome" target="_blank">
+                        <img id="logo" style="border: 0;" class="img-responsive">
+                    </a>
+                </div>
+            </div>
+
+            <div id="page">
+                <div id="spin"></div>
+                <div class="row internal-container">
+                    <div class="col-xs-4" id="imagediv">
+                        <img id="image" class="img-responsive">
+                    </div>
+                    <div class="col-xs-8">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h2 id="title"><span id="year"></span></h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <p id="description"><span id="dotdotdot"></span></p>
+                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <p id="description"><span id="dotdotdot"></span></p>
-                        </div>
+                </div>
+            </div>
+
+            <div id="options" class="options">
+
+                <div id="optMonitored" class="row internal-container hidden">
+                    <div class="col-xs-4 vcenter">
+                        <label class="textpadding">Monitored</label>
+                    </div>
+                    <div class="col-xs-8 vcenter">
+                        <input type="checkbox" id="monitored" checked data-toggle="toggle" data-offstyle="danger" value="true">
+                    </div>
+                </div>
+
+                <div id="optMinAvail" class="row internal-container hidden">
+                    <div class="col-xs-4 vcenter">
+                        <label class="textpadding">Min Avail</label>
+                    </div>
+                    <div class="col-xs-8 vcenter">
+                        <select id="lstMinAvail" class="form-control x-profile">
+                            <option value="announced">Announced</option>
+                            <option value="inCinemas">In Cinemas</option>
+                            <option value="released">Physical/Web</option>
+                            <option value="preDB">Pre DB</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="optSeriesType" class="row internal-container hidden">
+                    <div class="col-xs-4 vcenter">
+                        <label class="textpadding">Series Type</label>
+                    </div>
+                    <div class="col-xs-8 vcenter">
+                        <select id="lstSeriesType" class="form-control x-profile">
+                            <option value="standard">Standard</option>
+                            <option value="daily">Daily</option>
+                            <option value="anime">Anime</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="optProfile" class="row internal-container hidden">
+                    <div class="col-xs-4 vcenter">
+                        <label class="textpadding">Profile</label>
+                    </div>
+                    <div class="col-xs-8 vcenter">
+                        <select id="lstProfile" class="form-control x-profile"></select>
+                    </div>
+                </div>
+
+                <div id="optFolderPath" class="row internal-container hidden">
+                    <div class="col-xs-4 vcenter">
+                        <label class="textpadding">Folder</label>
+                    </div>
+                    <div class="col-xs-8 vcenter">
+                        <select id="lstFolderPath" class="form-control x-profile"></select>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="options" class="options">
-            <div class="row internal-container">
-                <div class="col-xs-4 vcenter">
-                    <label class="textpadding">Monitored</label>
+
+            <div class="row internal-container ctlRow">
+            	<div id="optSmConfig" class="col-md-6 col-xs-4 text-left hidden">
+                    <button id="btmSmConfig" type="button" class="btn button" title="Configuration">
+                    	<i class="fa fa-wrench" aria-hidden="true"></i>
+                    </button>
                 </div>
-                <div class="col-xs-8 vcenter">
-                    <input type="checkbox" id="monitored" checked data-toggle="toggle" data-offstyle="danger" value="true">
+                <div id="optLgConfig" class="col-md-12 text-center hidden">
+                    <button id="btmLgConfig" type="button" class="btn button" title="Configuration">
+                    	<i class="fa fa-wrench" aria-hidden="true"></i>
+                        <span id="lblConfig"> Configure Pulsarr</span>
+                    </button>
                 </div>
-            </div>
-            <div class="row internal-container">
-                <div class="col-xs-4 vcenter">
-                    <label class="textpadding">Min Avail</label>
-                </div>
-                <div class="col-xs-8 vcenter">
-                    <select id="minAvail" class="form-control x-profile">
-                        <option value="announced">Announced</option>
-                        <option value="inCinemas">In Cinemas</option>
-                        <option value="released">Physical/Web</option>
-                        <option value="preDB">Pre DB</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row internal-container">
-                <div class="col-xs-4 vcenter">
-                    <label class="textpadding">Profile</label>
-                </div>
-                <div class="col-xs-8 vcenter">
-                    <select id="profile" class="form-control x-profile"></select>
-                </div>
-            </div>
-            <div class="row internal-container">
-                <div class="col-xs-4 vcenter">
-                    <label class="textpadding">Folder</label>
-                </div>
-                <div class="col-xs-8 vcenter">
-                    <select id="folderPath" class="form-control x-profile"></select>
-                </div>
-            </div>
-        </div>
-        <div class="row internal-container ctlRow">
-        	<div class="col-md-6 col-xs-4 text-left">
-                <button id="config" type="button" class="btn button" title="Configuration">
-                	<i class="fa fa-wrench" aria-hidden="true"></i>
-                </button>
-            </div>
-       		<div id="btnBar" class="form-group col-xs-8 text-right">
-            <button id="btnExists" class="btn button hidden" title="View in Radarr">
-                Already Exists
-            </button>
-            	<div class="btn-group">
-	                <button id="btnAdd" class="btn button" title="Add">
-	                    <i class="fa fa-plus" aria-hidden="true"></i>
-	                    Add Movie
-	                </button>
-	                <button id="btnAddSearch" class="btn button" title="Add and Search for movie">
-	        	        <i class="fa fa-search"></i>
-	                </button>
+           		<div id="btnBar" class="form-group col-xs-8 text-right hidden">
+                    <button id="btnExists" class="btn button hidden" title="View">
+                        Already Exists
+                    </button>
+                	<div class="btn-group">
+    	                <button id="btnAdd" class="btn button" title="Add">
+    	                    <i class="fa fa-plus" aria-hidden="true"></i>
+    	                    <span id="lblAdd"></span>
+    	                </button>
+    	                <button id="btnAddSearch" class="btn button" title="Add and Search for movie">
+    	        	        <i class="fa fa-search"></i>
+    	                </button>
+                	</div>
             	</div>
-        	</div>
-        </div>
-        <div id="serverResponse" class="row internal-container hidden text-center">
-            <div class="col-xs-12 text-center">
-                <label></label>
+            </div>
+            <div id="serverResponse" class="row internal-container hidden text-center">
+                <div class="col-xs-12 text-center">
+                    <label></label>
+                </div>
             </div>
         </div>
-    </div>
-    <script type="text/javascript" src="popup.js"></script>
-</body>
+<!-- </div> -->
+        <script type="text/javascript" src="popup.js"></script>
+    </body>
 </html>
