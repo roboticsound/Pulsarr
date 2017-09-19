@@ -11,7 +11,6 @@ class Server {
 		this.auth = server.configuration.isAuth;
 		this.user = server.configuration.auth.user;
 		this.password = server.configuration.auth.password;
-		this.rootpath = server.configuration.rootpath;
 	}
 
 	constructBaseUrl() {
@@ -94,8 +93,7 @@ var pulsarrConfig = {
 			"auth": {
 				"user": "",
 				"password": "",
-			},
-			"rootpath": ""
+			}
 		},
 		"preferences": {
 			"monitored": true,
@@ -113,8 +111,7 @@ var pulsarrConfig = {
 			"auth": {
 				"user": "",
 				"password": "",
-			},
-			"rootpath": ""
+			}
 		},
 		"preferences": {
 			"monitored": true,
@@ -129,12 +126,10 @@ var tooltips = [
 	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Port number that Radarr is accessible on. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Radarr API Key. Radarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-	{title: "Path to root folder where movies will be saved. Leave blank to use Radarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "IP address or domain name of your Sonarr server.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Enable if your server requires basic http authentication.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Port number that Sonarr is accessible on. Sonarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 	{title: "Sonarr API Key. Sonarr > Settings > General", placement: "right", animation: true, delay: {show: 500, hide: 100}},
-	{title: "Path to root folder where TV shows will be saved. Leave blank to use Sonarr default path.", placement: "right", animation: true, delay: {show: 500, hide: 100}},
 ];
 
 var radarrServer = new Server(pulsarrConfig.radarr);
@@ -204,7 +199,6 @@ function readInputs() {
 		radarrServer.user = document.getElementById('radarrUser').value.trim();
 		radarrServer.password = document.getElementById('radarrPassword').value.trim();
 	}
-	radarrServer.rootpath = document.getElementById('radarrRootPath').value.trim();
 
 	sonarrServer.host = document.getElementById('sonarrHost').value.trim();
 	sonarrServer.port = document.getElementById('sonarrPort').value.trim();
@@ -213,7 +207,6 @@ function readInputs() {
 		sonarrServer.user = document.getElementById('sonarrUser').value.trim();
 		sonarrServer.password = document.getElementById('sonarrPassword').value.trim();
 	}
-	sonarrServer.rootpath = document.getElementById('sonarrRootPath').value.trim();
 }
 
 function saveConfig() {
@@ -224,7 +217,6 @@ function saveConfig() {
 	pulsarrConfig.radarr.configuration.isAuth = radarrServer.auth;
 	pulsarrConfig.radarr.configuration.auth.user = radarrServer.user;
 	pulsarrConfig.radarr.configuration.auth.password = radarrServer.password;
-	pulsarrConfig.radarr.configuration.rootpath = radarrServer.rootpath;
 
 	pulsarrConfig.sonarr.isEnabled = sonarrServer.isEnabled;
 	pulsarrConfig.sonarr.configuration.host = sonarrServer.host;
@@ -233,7 +225,6 @@ function saveConfig() {
 	pulsarrConfig.sonarr.configuration.isAuth = sonarrServer.auth;
 	pulsarrConfig.sonarr.configuration.auth.user = sonarrServer.user;
 	pulsarrConfig.sonarr.configuration.auth.password = sonarrServer.password;
-	pulsarrConfig.sonarr.configuration.rootpath = sonarrServer.rootpath;
 
 	localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
 
@@ -258,7 +249,6 @@ function restoreConfig() {
 	if (pulsarrConfig.radarr.configuration.isAuth) $('#optRadarrAuth').removeClass('hidden');
 	$('#radarrUser').val(pulsarrConfig.radarr.configuration.auth.user);
 	$('#radarrPassword').val(pulsarrConfig.radarr.configuration.auth.password);
-	$('#radarrRootPath').val(pulsarrConfig.radarr.configuration.rootpath);
 
 
 	$('#sonarrHost').val(pulsarrConfig.sonarr.configuration.host);
@@ -268,5 +258,4 @@ function restoreConfig() {
 	if (pulsarrConfig.sonarr.configuration.isAuth) $('#optSonarrAuth').removeClass('hidden');
 	$('#sonarrUser').val(pulsarrConfig.sonarr.configuration.auth.user);
 	$('#sonarrPassword').val(pulsarrConfig.sonarr.configuration.auth.password);
-	$('#sonarrRootPath').val(pulsarrConfig.sonarr.configuration.rootpath);
 }

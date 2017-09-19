@@ -11,13 +11,13 @@ var pulsarrConfig = {
 			"auth": {
 				"user": "",
 				"password": "",
-			},
-			"rootpath": ""
+			}
 		},
 		"preferences": {
 			"monitored": true,
 			"minAvail": "announced",
-			"qualityProfileId": 1
+            "qualityProfileId": 1,
+            "folderPath": ""
 		}
 	},
 	"sonarr": {
@@ -30,13 +30,13 @@ var pulsarrConfig = {
 			"auth": {
 				"user": "",
 				"password": "",
-			},
-			"rootpath": ""
+			}
 		},
 		"preferences": {
 			"monitored": true,
 			"seriesType": "standard",
-			"qualityProfileId": 1
+            "qualityProfileId": 1,
+            "folderPath": ""
 		}
 	}
 };
@@ -61,7 +61,7 @@ const blackhole = {
 
 class Pulsarr {
     init(media) {
-        var addPath;
+        var addPath = '';
         switch (media.type) {
             case "movie":
                 $('#serverName').text("Add to Radarr");
@@ -72,6 +72,7 @@ class Pulsarr {
                 $("#optMonitored").removeClass("hidden");
                 $("#optMinAvail").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
+                $("#optFolderPath").removeClass("hidden");
                 $('#lblAdd').text("Add Movie");
                 $("#btnBar").removeClass("hidden");
 
@@ -80,6 +81,7 @@ class Pulsarr {
                 $('#description').html(media.movie.text[0].overview);
                 if (media.movie.status == 200) {
                     radarr.profilesById();
+                    radarr.folderPathsByPath();
                     radarr.restoreSettings();
                 }
                 $('body').changepanel(media.movie.text[0]);
@@ -88,7 +90,9 @@ class Pulsarr {
                     $("#optMonitored").addClass("hidden");
                     $("#optMinAvail").addClass("hidden");
                     $("#optProfile").addClass("hidden");
+                    $("#optFolderPath").addClass("hidden");
                     $('#btnExists').removeClass('hidden');
+                    $('#btnExists').prop('title', 'View in Radarr');
                     $('#btnAdd').addClass('hidden');
                     $('#btnAddSearch').addClass('hidden');
                 }
@@ -106,10 +110,10 @@ class Pulsarr {
                     radarr.addMovie(
                         media.movie.text[0],
                         $('#lstProfile').val(),
-                        $("#monitored").prop('checked'),
+                        $('#monitored').prop('checked'),
                         $('#lstMinAvail').val(),
                         false,
-                        addPath
+                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
                     );
                 });
 
@@ -117,11 +121,11 @@ class Pulsarr {
                     radarr.addMovie(
                         media.movie.text[0],
                         $('#lstProfile').val(),
-                        $("#monitored").prop('checked'),
+                        $('#monitored').prop('checked'),
                         $('#lstMinAvail').val(),
                         true,
-                        addPath
-                      );
+                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
+                    );
                 });
             break;
 
@@ -133,6 +137,7 @@ class Pulsarr {
                 $("#optSmConfig").removeClass("hidden");
                 $("#optMonitored").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
+                $("#optFolderPath").removeClass("hidden");
                 $("#optSeriesType").removeClass("hidden");
                 $('#lblAdd').text("Add Series");
                 $("#btnBar").removeClass("hidden");
@@ -142,6 +147,7 @@ class Pulsarr {
                 $('#description').html(media.series.text[0].overview);
                 if (media.series.status == 200) {
                     sonarr.profilesById();
+                    sonarr.folderPathsByPath();
                     sonarr.restoreSettings();
                 }
                 $('body').changepanel(media.series.text[0]);
@@ -149,8 +155,10 @@ class Pulsarr {
                 if (media.existingSlug !== "") {
                     $("#optMonitored").addClass("hidden");
                     $("#optProfile").addClass("hidden");
+                    $("#optFolderPath").addClass("hidden");
                     $("#optSeriesType").addClass("hidden");
                     $('#btnExists').removeClass('hidden');
+                    $('#btnExists').prop('title', 'View in Sonarr');
                     $('#btnAdd').addClass('hidden');
                     $('#btnAddSearch').addClass('hidden');
                 }
@@ -169,9 +177,9 @@ class Pulsarr {
                         media.series.text[0],
                         $('#lstProfile').val(),
                         $('#lstSeriesType').val(),
-                        $("#monitored").prop('checked'),
+                        $('#monitored').prop('checked'),
                         false,
-                        addPath
+                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
                     );
                 });
 
@@ -180,10 +188,10 @@ class Pulsarr {
                         media.series.text[0],
                         $('#lstProfile').val(),
                         $('#lstSeriesType').val(),
-                        $("#monitored").prop('checked'),
+                        $('#monitored').prop('checked'),
                         true,
-                        addPath
-                      );
+                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
+                    );
                 });
                 break;
 
@@ -264,15 +272,13 @@ class Pulsarr {
         localStorage.removeItem("user");
     	pulsarrConfig.radarr.configuration.auth.password = localStorage.getItem("password");
         localStorage.removeItem("password");
-    	pulsarrConfig.radarr.configuration.rootpath = localStorage.getItem("moviePath");
         localStorage.removeItem("moviePath");
         localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
     }
-
 }
 
 class Server {
-    constructor (name, host, port, apikey, auth, user, password, rootpath) {
+    constructor (name, host, port, apikey, auth, user, password) {
         var self = this;
         this.name = name;
     	this.host = host;
@@ -281,7 +287,6 @@ class Server {
     	this.auth = auth;
     	this.user = user;
     	this.password = password;
-    	this.rootpath = rootpath;
     }
 
 	constructBaseUrl() {
@@ -300,13 +305,9 @@ class Server {
     getPath() {
         var self = this;
         return new Promise(function(resolve, reject) {
-            if (self.rootpath !== "") {
-                resolve(self.rootpath);
-            } else {
-                self.get("/api/rootfolder", "").then(function(response) {
-                    resolve(response.text[0].path);
-                });
-            }
+            self.get("/api/rootfolder", "").then(function(response) {
+                resolve(response.text[0].path);
+            });
         });
     }
 
@@ -394,13 +395,12 @@ class Server {
             };
 
             http.send(JSON.stringify(params));
-
         });
     }
 }
 
 class RadarrServer extends Server {
-    constructor(host, port, apikey, auth, user, password, rootpath) {
+    constructor(host, port, apikey, auth, user, password) {
         super(
             "Radarr",
             host,
@@ -408,15 +408,15 @@ class RadarrServer extends Server {
             apikey,
             auth,
             user,
-            password,
-            rootpath
+            password
         );
     }
 
-    updatePreferences(monitored, qualityId, minAvail) {
+    updatePreferences(monitored, qualityId, minAvail, folderPath) {
         pulsarrConfig.radarr.preferences.monitored = monitored;
         pulsarrConfig.radarr.preferences.qualityProfileId = qualityId;
         pulsarrConfig.radarr.preferences.minAvail = minAvail;
+        pulsarrConfig.radarr.preferences.folderPath = folderPath;
 
         pulsarr.saveSettings();
     }
@@ -449,7 +449,7 @@ class RadarrServer extends Server {
         };
 
         this.post("/api/movie", newMovie).then(function(response) {
-            radarr.updatePreferences(monitored, qualityId, minAvail);
+            radarr.updatePreferences(monitored, qualityId, minAvail, folderPath);
             pulsarr.info("Movie added to Radarr!");
             setTimeout(function() {
                 window.close();
@@ -493,6 +493,22 @@ class RadarrServer extends Server {
         });
     }
 
+    folderPathsByPath() {
+        this.get("/api/rootfolder", "").then(function(response) {
+            var folderPaths = response.text;
+            for (var i = 0; i < folderPaths.length; i++) {
+                $('#lstFolderPath')
+                    .append($('<option>', { value: folderPaths[i].path })
+                    .text(folderPaths[i].path));
+                if (pulsarrConfig.radarr.preferences.folderPath === folderPaths[i].path) {
+                    $('#lstFolderPath').prop('selectedIndex', i);
+                }
+            }
+        }).catch(function(error) {
+            pulsarr.info("folderPathsByPath Failed! " + error);
+        });
+    }
+
     isExistingMovie(imdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
@@ -511,7 +527,7 @@ class RadarrServer extends Server {
 }
 
 class SonarrServer extends Server {
-    constructor(host, port, apikey, auth, user, password, rootpath) {
+    constructor(host, port, apikey, auth, user, password) {
         super(
             "Sonarr",
             host,
@@ -519,15 +535,15 @@ class SonarrServer extends Server {
             apikey,
             auth,
             user,
-            password,
-            rootpath
+            password
         );
     }
 
-    updatePreferences(monitored, qualityId, seriesType) {
+    updatePreferences(monitored, qualityId, seriesType, folderPath) {
         pulsarrConfig.sonarr.preferences.monitored = monitored;
         pulsarrConfig.sonarr.preferences.qualityProfileId = qualityId;
         pulsarrConfig.sonarr.preferences.seriesType = seriesType;
+        pulsarrConfig.sonarr.preferences.folderPath = folderPath;
 
         pulsarr.saveSettings();
     }
@@ -562,7 +578,7 @@ class SonarrServer extends Server {
         };
 
         this.post("/api/series", newSeries).then(function(response) {
-            sonarr.updatePreferences(monitored, qualityId, seriesType);
+            sonarr.updatePreferences(monitored, qualityId, seriesType, folderPath);
             pulsarr.info("Series added to Sonarr!");
             setTimeout(function() {
                 window.close();
@@ -606,6 +622,22 @@ class SonarrServer extends Server {
         });
     }
 
+    folderPathsByPath() {
+        this.get("/api/rootfolder", "").then(function(response) {
+            var folderPaths = response.text;
+            for (var i = 0; i < folderPaths.length; i++) {
+                $('#lstFolderPath')
+                    .append($('<option>', { value: folderPaths[i].path })
+                    .text(folderPaths[i].path));
+                if (pulsarrConfig.sonarr.preferences.folderPath === folderPaths[i].path) {
+                    $('#lstFolderPath').prop('selectedIndex', i);
+                }
+            }
+        }).catch(function(error) {
+            pulsarr.info("folderPathsByPath Failed! " + error);
+        });
+    }
+
     isExistingSeries(tvdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
@@ -636,6 +668,13 @@ function init() {
 
     pulsarrConfig = JSON.parse(localStorage.getItem("pulsarrConfig"));
 
+    // Cleanup of older config
+    if (pulsarrConfig.radarr.configuration.rootpath !== undefined || pulsarrConfig.sonarr.configuration.rootpath !== undefined) {
+        pulsarrConfig.radarr.configuration.rootpath = undefined;
+        pulsarrConfig.sonarr.configuration.rootpath = undefined;
+        localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
+    }
+
     if (pulsarrConfig.radarr.isEnabled) {
         radarr = new RadarrServer(
             pulsarrConfig.radarr.configuration.host,
@@ -643,8 +682,7 @@ function init() {
             pulsarrConfig.radarr.configuration.apikey,
             pulsarrConfig.radarr.configuration.isAuth,
             pulsarrConfig.radarr.configuration.auth.user,
-            pulsarrConfig.radarr.configuration.auth.password,
-            pulsarrConfig.radarr.configuration.rootpath
+            pulsarrConfig.radarr.configuration.auth.password
         );
     } else {
         radarr = new RadarrServer("","","",false,"","","");
@@ -657,8 +695,7 @@ function init() {
             pulsarrConfig.sonarr.configuration.apikey,
             pulsarrConfig.sonarr.configuration.isAuth,
             pulsarrConfig.sonarr.configuration.auth.user,
-            pulsarrConfig.sonarr.configuration.auth.password,
-            pulsarrConfig.sonarr.configuration.rootpath
+            pulsarrConfig.sonarr.configuration.auth.password
         );
     } else {
         sonarr = new SonarrServer("","","",false,"","","");
