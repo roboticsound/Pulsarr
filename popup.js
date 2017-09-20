@@ -232,6 +232,12 @@ class Pulsarr {
         return regex.test(url);
     }
 
+	isTrakt(url) {
+		var regex = new RegExp(".*trakt.tv\/");
+
+		return regex.test(url);
+	}
+
     extractIMDBID(url) {
         var regex = new RegExp("\/tt\\d{1,7}\/");
         var imdbid = regex.exec(url);
@@ -738,6 +744,8 @@ getCurrentTabUrl(function(url) {
         }).catch(function(response) {
             pulsarr.init(response);
         });
+	} else if (pulsarr.isTrakt(url)) {
+		chrome.alert("success");
     } else {
         pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
     }
