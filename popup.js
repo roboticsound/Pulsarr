@@ -76,7 +76,7 @@ class Pulsarr {
                 $('#lblAdd').text("Add Movie");
                 $("#btnBar").removeClass("hidden");
 
-                radarr.getPath().then(function(response) {addPath = response;});
+                //radarr.getPath().then(function(response) {addPath = response;});
 
                 $('#description').html(media.movie.text[0].overview);
                 if (media.movie.status == 200) {
@@ -142,7 +142,7 @@ class Pulsarr {
                 $('#lblAdd').text("Add Series");
                 $("#btnBar").removeClass("hidden");
 
-                sonarr.getPath().then(function(response) {addPath = response;});
+                //sonarr.getPath().then(function(response) {addPath = response;});
 
                 $('#description').html(media.series.text[0].overview);
                 if (media.series.status == 200) {
@@ -239,14 +239,14 @@ class Pulsarr {
 	}
 
     extractIMDBID(url) {
-        var regex = new RegExp("\/tt\\d{1,7}\/");
+        var regex = new RegExp("\/tt\\d{1,7}");
         var imdbid = regex.exec(url);
 
         return (imdbid) ? imdbid[0].slice(1, 10) : "";
     }
 
     extractTVDBID(url) {
-        var regex = new RegExp("\&(id|seriesid)\=\\d{1,7}");
+        var regex = new RegExp("(&|\\?)(id|seriesid)=\\d{1,7}");
         var tvdbid = regex.exec(url);
 
         return (tvdbid) ? tvdbid[0].split("=")[1]:"";
@@ -745,7 +745,29 @@ getCurrentTabUrl(function(url) {
             pulsarr.init(response);
         });
 	} else if (pulsarr.isTrakt(url)) {
-		chrome.alert("success");
+		var regextv = new RegExp("trakt.tv\/shows\/");
+		var regexmov = new RegExp("trakt.tv\/movies\/");
+		if (regextv.test(url)) {
+			$.ajax({
+				url : url,
+				success : function(result) {sonarr.lookupSeries(pulsarr.extractTVDBID(result)).then(function(error) {
+					pulsarr.info(error);
+				}).catch(function(response) {
+					pulsarr.init(response);
+				});}
+			});
+		} else if (regexmov.test(url)) {
+			$.ajax({
+				url : url,
+				success : function(result) {radarr.lookupMovie(pulsarr.extractIMDBID(result)).then(function(error) {
+					pulsarr.info(error);
+				}).catch(function(response) {
+					pulsarr.init(response);
+				});}
+			});
+		} else {
+			pulsarr.info("Could not find media. Are you on a valid TV Show or Movie page?");
+		}
     } else {
         pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
     }
