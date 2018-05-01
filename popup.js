@@ -234,6 +234,12 @@ class Pulsarr {
 		return regex.test(url);
 	}
 
+	isRT(url) {
+		var regex = new RegExp(".*rottentomatoes.com\/");
+
+		return regex.test(url);
+	}
+
     extractIMDBID(url) {
         var regex = new RegExp("\/tt\\d{1,7}");
         var imdbid = regex.exec(url);
@@ -477,6 +483,26 @@ class RadarrServer extends Server {
         });
     }
 
+	async lookupMovieByTitleYear(title, year) {
+		var self = this;
+		var searchString = title + " " + year;
+		searchString = encodeURI(searchString);
+		// antipattern: resolve acts as reject and vice versa
+		return new Promise(async function(resolve, reject) {
+			if (title === "") {
+				resolve();
+			} else {
+				var lookup = await self.get("/api/movie/lookup", "term=" + searchString)
+				var existingSlug = await self.isExistingMovieByTitleSlug(lookup.text[0].titleSlug)
+				if (lookup) {
+					reject({"type": "movie", "movie": lookup, "existingSlug": existingSlug});
+				} else {
+					resolve(error);
+				}
+			};
+		});
+	}
+
     async profilesById() {
 		try {
 			let profiles = await this.get("/api/profile", "");
@@ -511,7 +537,7 @@ class RadarrServer extends Server {
 		}
     }
 
-    isExistingMovie (imdbid) {
+    isExistingMovie(imdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
             self.get("/api/movie", "").then(function(response) {
@@ -526,6 +552,22 @@ class RadarrServer extends Server {
             });
         });
     }
+
+	isExistingMovieByTitleSlug(titleSlug) {
+		var self = this;
+		return new Promise(function(resolve, reject) {
+			self.get("/api/movie", "").then(function(response) {
+				for (var i = 0; i < response.text.length; i++) {
+					if (titleSlug === response.text[i].titleSlug) {
+						resolve(response.text[i].titleSlug);
+					}
+				}
+				resolve("");
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
 }
 
 class SonarrServer extends Server {
@@ -608,6 +650,26 @@ class SonarrServer extends Server {
         });
     }
 
+	async lookupSeriesByTitleYear(title, year) {
+		var self = this;
+		var searchString = title + " " + year;
+		searchString = encodeURI(searchString);
+		// antipattern: resolve acts as reject and vice versa
+		return new Promise(async function(resolve, reject) {
+			if (title === "") {
+				resolve();
+			} else {
+				var lookup = await self.get("/api/series/lookup", "term=" + searchString)
+				var existingSlug = await self.isExistingSeriesByTitleSlug(lookup.text[0].titleSlug)
+				if (lookup) {
+					reject({"type": "series", "series": lookup, "existingSlug": existingSlug});
+				} else {
+					resolve(error);
+				}
+			};
+		});
+	}
+
     async profilesById() {
 		try {
 			let profiles = await this.get("/api/profile", "");
@@ -657,6 +719,22 @@ class SonarrServer extends Server {
             });
         });
     }
+
+	isExistingSeriesByTitleSlug(titleSlug) {
+		var self = this;
+		return new Promise(function(resolve, reject) {
+			self.get("/api/series", "").then(function(response) {
+				for (var i = 0; i < response.text.length; i++) {
+					if (titleSlug === response.text[i].titleSlug) {
+						resolve(response.text[i].titleSlug);
+					}
+				}
+				resolve("");
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
 }
 
 function init() {
@@ -788,6 +866,50 @@ let loadFromTraktUrl = async (url) => {
 	}
 }
 
+let loadFromRTUrl = async (url) => {
+	$.ajax({
+		url: url,
+		success: function(response) {
+			var media = parseRTHTML(response);
+
+			if (media.type == "Tv") {
+				sonarr.lookupSeriesByTitleYear(media.title, media.year).then( (error) => {
+					pulsarr.info(error);
+				}).catch((series) => {
+					pulsarr.init(series);
+				});
+			} else if (media.type == "Movie") {
+				radarr.lookupMovieByTitleYear(media.title, media.year).then( (error) => {
+					pulsarr.info(error);
+				}).catch((movie) => {
+					pulsarr.init(movie);
+				});
+				// pulsarr.info("Movie");
+			}
+			// pulsarr.info(parseRTHTML(response).title);
+		}
+	});
+}
+
+var parseRTHTML = (html) => {
+	var regexTitle = new RegExp('\\"titleName\\"\\: \\".*\\"');
+	var regexYear = new RegExp('mpscall\\[\\"cag\\[release\\]\\"\\]\\=\\".*\\"');
+	var regexType = new RegExp('\\"titleType\\"\\: \\".*\\"');
+
+	var title = html.match(regexTitle)[0].split('"titleName": ')[1];
+	title = title.substring(1, title.length - 1)
+	var year = html.match(regexYear)[0].split('mpscall["cag[release]"]=')[1];
+	year = year.substring(1, year.length - 1)
+	var type = html.match(regexType)[0].split('"titleType": ')[1];
+	type = type.substring(1, type.length - 1)
+
+	return {
+		title,
+		year,
+		type
+	};
+}
+
 getCurrentTabUrl(async (url) => {
     if (pulsarr.isImdb(url)) {
 		loadFromImdbUrl(url);
@@ -795,6 +917,8 @@ getCurrentTabUrl(async (url) => {
 		loadFromTvdbUrl(url);
 	} else if (pulsarr.isTrakt(url)) {
 		loadFromTraktUrl(url);
+	} else if (pulsarr.isRT(url)) {
+		loadFromRTUrl(url);
     } else {
         pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
     }
