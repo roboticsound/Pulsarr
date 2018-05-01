@@ -233,9 +233,15 @@ class Pulsarr {
 
 		return regex.test(url);
 	}
-
-	isRT(url) {
+	
+	isRotten(url) {
 		var regex = new RegExp(".*rottentomatoes.com\/");
+
+		return regex.test(url);
+	}
+	
+	isTMB(url) {
+		var regex = new RegExp(".*themoviedb.org\/");
 
 		return regex.test(url);
 	}
@@ -259,7 +265,21 @@ class Pulsarr {
 
 		return $(result).find("seriesid").text();
     }
+	
+	async ImdbidFromTitle(title,ismovie) {
+		if (ismovie){
+			var url = "http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q=" + title;
+		} else {
+			var url = "http://www.imdb.com/find?s=tt&&ttype=tv&ref_=fn_tv&q=" + title;
+		}
+		let result = await $.ajax({url: url, datatype: "xml"});
+		var regex = new RegExp("\/tt\\d{1,7}");
+		let imdbid = await regex.exec($(result).find(".result_text").find("a").attr("href"));
 
+		return (imdbid) ? imdbid[0].slice(1, 10) : "";
+
+	}
+	
     saveSettings() {
         localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
     }
@@ -866,48 +886,75 @@ let loadFromTraktUrl = async (url) => {
 	}
 }
 
-let loadFromRTUrl = async (url) => {
-	$.ajax({
-		url: url,
-		success: function(response) {
-			var media = parseRTHTML(response);
-
-			if (media.type == "Tv") {
-				sonarr.lookupSeriesByTitleYear(media.title, media.year).then( (error) => {
-					pulsarr.info(error);
-				}).catch((series) => {
-					pulsarr.init(series);
-				});
-			} else if (media.type == "Movie") {
-				radarr.lookupMovieByTitleYear(media.title, media.year).then( (error) => {
-					pulsarr.info(error);
-				}).catch((movie) => {
-					pulsarr.init(movie);
-				});
-				// pulsarr.info("Movie");
+let loadFromRottenUrl = async (url) => {
+	var regextv = new RegExp("rottentomatoes.com\/tv\/");
+	var regexmov = new RegExp("rottentomatoes.com\/m\/");
+	if (regextv.test(url)) {
+		try {
+			var title = url.split("/tv/")[1].split("/")[0].replace(/\_/g," ");
+			chrome.extension.getBackgroundPage().console.log("Title: " + title);
+			let imdbid = await pulsarr.ImdbidFromTitle(title,0);
+			let tvdbid = await pulsarr.TvdbidFromImdbid(imdbid);
+			let series = await sonarr.lookupSeries(tvdbid);
+			if (series) {
+				pulsarr.info(series);
 			}
-			// pulsarr.info(parseRTHTML(response).title);
+		} catch (err) {
+			pulsarr.init(err);
 		}
-	});
+	} else if (regexmov.test(url)) {
+		try {
+			let result = await $.ajax({url: url, datatype: "xml"});
+			var title = $(result).find("#movie-title").text().trim();
+			let imdbid = await pulsarr.ImdbidFromTitle(title,1);
+			let movie = await radarr.lookupMovie(imdbid);
+			if (movie) {
+				pulsarr.info(movie);
+			}
+		} catch (err) {
+			pulsarr.init(err);
+		}
+	} else {
+		pulsarr.info("Could not find media. Are you on a valid TV Show or Movie page?");
+	}
 }
 
-var parseRTHTML = (html) => {
-	var regexTitle = new RegExp('\\"titleName\\"\\: \\".*\\"');
-	var regexYear = new RegExp('mpscall\\[\\"cag\\[release\\]\\"\\]\\=\\".*\\"');
-	var regexType = new RegExp('\\"titleType\\"\\: \\".*\\"');
-
-	var title = html.match(regexTitle)[0].split('"titleName": ')[1];
-	title = title.substring(1, title.length - 1)
-	var year = html.match(regexYear)[0].split('mpscall["cag[release]"]=')[1];
-	year = year.substring(1, year.length - 1)
-	var type = html.match(regexType)[0].split('"titleType": ')[1];
-	type = type.substring(1, type.length - 1)
-
-	return {
-		title,
-		year,
-		type
-	};
+let loadFromTMBUrl = async (url) => {
+	var regextv = new RegExp("themoviedb.org\/tv\/");
+	var regexmov = new RegExp("themoviedb.org\/movie\/");
+	if (regextv.test(url)) {
+		try {
+			let result = await $.ajax({url: url, datatype: "xml"});
+			var title = $(result).find(".title").find("a").find("h2").text().trim();
+			var date = $(result).find(".title").find(".release_date").text().trim();
+			title = title + " " + date;
+			let imdbid = await pulsarr.ImdbidFromTitle(title,0);
+			let tvdbid = await pulsarr.TvdbidFromImdbid(imdbid);
+			let series = await sonarr.lookupSeries(tvdbid);
+			
+			if (series) {
+				pulsarr.info(series);
+			}
+		} catch (err) {
+			pulsarr.init(err);
+		}
+	} else if (regexmov.test(url)) {
+		try {
+			let result = await $.ajax({url: url, datatype: "xml"});
+			var title = $(result).find(".title").find("a").find("h2").text().trim();
+			var date = $(result).find(".title").find(".release_date").text().trim();
+			title = title + " " + date;
+			let imdbid = await pulsarr.ImdbidFromTitle(title,1);
+			let movie = await radarr.lookupMovie(imdbid);
+			if (movie) {
+				pulsarr.info(movie);
+			}
+		} catch (err) {
+			pulsarr.init(err);
+		}
+	} else {
+		pulsarr.info("Could not find media. Are you on a valid TV Show or Movie page?");
+	}
 }
 
 getCurrentTabUrl(async (url) => {
@@ -917,8 +964,10 @@ getCurrentTabUrl(async (url) => {
 		loadFromTvdbUrl(url);
 	} else if (pulsarr.isTrakt(url)) {
 		loadFromTraktUrl(url);
-	} else if (pulsarr.isRT(url)) {
-		loadFromRTUrl(url);
+	} else if (pulsarr.isRotten(url)) {
+		loadFromRottenUrl(url);
+	} else if (pulsarr.isTMB(url)) {
+		loadFromTMBUrl(url);
     } else {
         pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
     }
