@@ -245,7 +245,7 @@ class Pulsarr {
 
 		return regex.test(url);
 	}
-	
+
     extractIMDBID(url) {
         var regex = new RegExp("\/tt\\d{1,7}");
         var imdbid = regex.exec(url);
@@ -503,6 +503,26 @@ class RadarrServer extends Server {
         });
     }
 
+	async lookupMovieByTitleYear(title, year) {
+		var self = this;
+		var searchString = title + " " + year;
+		searchString = encodeURI(searchString);
+		// antipattern: resolve acts as reject and vice versa
+		return new Promise(async function(resolve, reject) {
+			if (title === "") {
+				resolve();
+			} else {
+				var lookup = await self.get("/api/movie/lookup", "term=" + searchString)
+				var existingSlug = await self.isExistingMovieByTitleSlug(lookup.text[0].titleSlug)
+				if (lookup) {
+					reject({"type": "movie", "movie": lookup, "existingSlug": existingSlug});
+				} else {
+					resolve(error);
+				}
+			};
+		});
+	}
+
     async profilesById() {
 		try {
 			let profiles = await this.get("/api/profile", "");
@@ -537,7 +557,7 @@ class RadarrServer extends Server {
 		}
     }
 
-    isExistingMovie (imdbid) {
+    isExistingMovie(imdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
             self.get("/api/movie", "").then(function(response) {
@@ -552,6 +572,22 @@ class RadarrServer extends Server {
             });
         });
     }
+
+	isExistingMovieByTitleSlug(titleSlug) {
+		var self = this;
+		return new Promise(function(resolve, reject) {
+			self.get("/api/movie", "").then(function(response) {
+				for (var i = 0; i < response.text.length; i++) {
+					if (titleSlug === response.text[i].titleSlug) {
+						resolve(response.text[i].titleSlug);
+					}
+				}
+				resolve("");
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
 }
 
 class SonarrServer extends Server {
@@ -634,6 +670,26 @@ class SonarrServer extends Server {
         });
     }
 
+	async lookupSeriesByTitleYear(title, year) {
+		var self = this;
+		var searchString = title + " " + year;
+		searchString = encodeURI(searchString);
+		// antipattern: resolve acts as reject and vice versa
+		return new Promise(async function(resolve, reject) {
+			if (title === "") {
+				resolve();
+			} else {
+				var lookup = await self.get("/api/series/lookup", "term=" + searchString)
+				var existingSlug = await self.isExistingSeriesByTitleSlug(lookup.text[0].titleSlug)
+				if (lookup) {
+					reject({"type": "series", "series": lookup, "existingSlug": existingSlug});
+				} else {
+					resolve(error);
+				}
+			};
+		});
+	}
+
     async profilesById() {
 		try {
 			let profiles = await this.get("/api/profile", "");
@@ -683,6 +739,22 @@ class SonarrServer extends Server {
             });
         });
     }
+
+	isExistingSeriesByTitleSlug(titleSlug) {
+		var self = this;
+		return new Promise(function(resolve, reject) {
+			self.get("/api/series", "").then(function(response) {
+				for (var i = 0; i < response.text.length; i++) {
+					if (titleSlug === response.text[i].titleSlug) {
+						resolve(response.text[i].titleSlug);
+					}
+				}
+				resolve("");
+			}).catch(function(error) {
+				reject(error);
+			});
+		});
+	}
 }
 
 function init() {
