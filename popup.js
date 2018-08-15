@@ -34,6 +34,7 @@ var pulsarrConfig = {
 		},
 		"preferences": {
 			"monitored": true,
+			"seasonFolder": false,
 			"seriesType": "standard",
             "qualityProfileId": 1,
             "folderPath": ""
@@ -134,6 +135,7 @@ class Pulsarr {
                 $('#serverHome').attr("href", sonarr.constructBaseUrl());
                 $("#optSmConfig").removeClass("hidden");
                 $("#optMonitored").removeClass("hidden");
+                $("#optSeasonFolder").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
                 $("#optFolderPath").removeClass("hidden");
                 $("#optSeriesType").removeClass("hidden");
@@ -150,6 +152,7 @@ class Pulsarr {
 
                 if (media.existingSlug !== "") {
                     $("#optMonitored").addClass("hidden");
+                    $("#optSeasonFolder").addClass("hidden");
                     $("#optProfile").addClass("hidden");
                     $("#optFolderPath").addClass("hidden");
                     $("#optSeriesType").addClass("hidden");
@@ -174,6 +177,7 @@ class Pulsarr {
                         $('#lstProfile').val(),
                         $('#lstSeriesType').val(),
                         $('#monitored').prop('checked'),
+                        $('#seasonFolder').prop('checked'),
                         false,
                         $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
                     );
@@ -185,6 +189,7 @@ class Pulsarr {
                         $('#lstProfile').val(),
                         $('#lstSeriesType').val(),
                         $('#monitored').prop('checked'),
+                        $('#seasonFolder').prop('checked'),
                         true,
                         $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
                     );
@@ -603,8 +608,9 @@ class SonarrServer extends Server {
         );
     }
 
-    updatePreferences(monitored, qualityId, seriesType, folderPath) {
+    updatePreferences(monitored, seasonFolder, qualityId, seriesType, folderPath) {
         pulsarrConfig.sonarr.preferences.monitored = monitored;
+        pulsarrConfig.sonarr.preferences.seasonFolder = seasonFolder;
         pulsarrConfig.sonarr.preferences.qualityProfileId = qualityId;
         pulsarrConfig.sonarr.preferences.seriesType = seriesType;
         pulsarrConfig.sonarr.preferences.folderPath = folderPath;
@@ -618,10 +624,15 @@ class SonarrServer extends Server {
         } else {
             $('#monitored').bootstrapToggle('off');
         }
+        if (pulsarrConfig.sonarr.preferences.seasonFolder) {
+            $('#seasonFolder').bootstrapToggle('on');
+        } else {
+            $('#seasonFolder').bootstrapToggle('off');
+        }
         $('#lstSeriesType').val(pulsarrConfig.sonarr.preferences.seriesType);
     }
 
-    addSeries(series, qualityId, seriesType, monitored, addSearch, folderPath) {
+    addSeries(series, qualityId, seriesType, monitored, seasonFolder, addSearch, folderPath) {
         pulsarr.loading();
 
         var newSeries = {
@@ -634,6 +645,7 @@ class SonarrServer extends Server {
             "tvdbId": series.tvdbId,
             "rootFolderPath": folderPath,
             "monitored": monitored,
+            "seasonFolder": seasonFolder,
             "addOptions": {
                 "ignoreEpisodesWithFiles": false,
                 "ignoreEpisodesWithoutFiles": false,
@@ -642,7 +654,7 @@ class SonarrServer extends Server {
         };
 
         this.post("/api/series", newSeries).then(function(response) {
-            sonarr.updatePreferences(monitored, qualityId, seriesType, folderPath);
+            sonarr.updatePreferences(monitored, seasonFolder, qualityId, seriesType, folderPath);
             pulsarr.info("Series added to Sonarr!");
             setTimeout(function() {
                 window.close();
