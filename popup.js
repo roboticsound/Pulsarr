@@ -239,7 +239,13 @@ class Pulsarr {
 
 		return regex.test(url);
 	}
-	
+
+	isAllocine(url) {
+		var regex = new RegExp(".*allocine.fr\/");
+
+		return regex.test(url);
+	}
+
 	isTMB(url) {
 		var regex = new RegExp(".*themoviedb.org\/");
 
@@ -919,6 +925,39 @@ let loadFromRottenUrl = async (url) => {
 	}
 }
 
+let loadFromAllocineUrl = async (url) => {
+	var regextv = new RegExp("www.allocine.fr\/series\/");
+	var regexmov = new RegExp("www.allocine.fr\/film\/");
+	if (regextv.test(url)) {
+		try {
+			let result = await $.ajax({url: url, datatype: "xml"});
+			var title = $(result).find(".titlebar-title")[0].innerText;
+			let imdbid = await pulsarr.ImdbidFromTitle(title,0);
+			let tvdbid = await pulsarr.TvdbidFromImdbid(imdbid);
+			let series = await sonarr.lookupSeries(tvdbid);
+			if (series) {
+				pulsarr.info(series);
+			}
+		} catch (err) {
+			pulsarr.init(err);
+		}
+	} else if (regexmov.test(url)) {
+		try {
+			let result = await $.ajax({url: url, datatype: "xml"});
+			var title = $(result).find(".titlebar-title")[0].innerText;
+			let imdbid = await pulsarr.ImdbidFromTitle(title,1);
+			let movie = await radarr.lookupMovie(imdbid);
+			if (movie) {
+				pulsarr.info(movie);
+			}
+		} catch (err) {
+			pulsarr.init(err);
+		}
+	} else {
+		pulsarr.info("Could not find media. Are you on a valid TV Show or Movie page?");
+	}
+}
+
 let loadFromTMBUrl = async (url) => {
 	var regextv = new RegExp("themoviedb.org\/tv\/");
 	var regexmov = new RegExp("themoviedb.org\/movie\/");
@@ -966,6 +1005,8 @@ getCurrentTabUrl(async (url) => {
 		loadFromTraktUrl(url);
 	} else if (pulsarr.isRotten(url)) {
 		loadFromRottenUrl(url);
+	} else if (pulsarr.isAllocine(url)) {
+		loadFromAllocineUrl(url);
 	} else if (pulsarr.isTMB(url)) {
 		loadFromTMBUrl(url);
     } else {
