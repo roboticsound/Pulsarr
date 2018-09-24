@@ -52,7 +52,7 @@ const blackhole = {
                 "coverType": "poster",
                 "url": "/img/black-hole-poster.jpg"
             }],
-	    "overview": "Oh no! Pulsarr has collapsed into a black hole. Please check your configuration and that you are on a valid IMDB or TVDB page.",
+            "overview": "Oh no! Pulsarr has collapsed into a black hole. Please check your configuration and that you are on a valid IMDB or TVDB page.",
             "title": "Black Hole",
             "year": 404
         }]
@@ -246,25 +246,31 @@ class Pulsarr {
 		return regex.test(url);
 	}
 
-    extractIMDBID(url) {
-        var regex = new RegExp("\/tt\\d{1,7}");
-        var imdbid = regex.exec(url);
+  isLetter(url) {
+    var regex = new RegExp(".*letterboxd.com\/");
 
-        return (imdbid) ? imdbid[0].slice(1, 10) : "";
-    }
+    return regex.test(url);
+  }
 
-    extractTVDBID(url) {
-        var regex = new RegExp("(&|\\?)(id|seriesid)=\\d{1,7}");
-        var tvdbid = regex.exec(url);
+  extractIMDBID(url) {
+    var regex = new RegExp("\/tt\\d{1,7}");
+    var imdbid = regex.exec(url);
 
-        return (tvdbid) ? tvdbid[0].split("=")[1]:"";
-    }
+    return (imdbid) ? imdbid[0].slice(1, 10) : "";
+  }
 
-    async TvdbidFromImdbid(imdbid) {
-		let result = await $.ajax({url: "http://thetvdb.com/api/GetSeriesByRemoteID.php?imdbid=" + imdbid, datatype: "xml"});
+  extractTVDBID(url) {
+    var regex = new RegExp("(&|\\?)(id|seriesid)=\\d{1,7}");
+    var tvdbid = regex.exec(url);
 
-		return $(result).find("seriesid").text();
-    }
+    return (tvdbid) ? tvdbid[0].split("=")[1]:"";
+  }
+
+  async TvdbidFromImdbid(imdbid) {
+  	let result = await $.ajax({url: "http://thetvdb.com/api/GetSeriesByRemoteID.php?imdbid=" + imdbid, datatype: "xml"});
+
+  	return $(result).find("seriesid").text();
+  }
 	
 	async ImdbidFromTitle(title,ismovie) {
 		if (ismovie){
@@ -277,7 +283,6 @@ class Pulsarr {
 		let imdbid = await regex.exec($(result).find(".result_text").find("a").attr("href"));
 
 		return (imdbid) ? imdbid[0].slice(1, 10) : "";
-
 	}
 	
     saveSettings() {
@@ -957,6 +962,25 @@ let loadFromTMBUrl = async (url) => {
 	}
 }
 
+let loadFromLetterUrl = async (url) => {
+  var regexmov = new RegExp("letterboxd.com\/film\/");
+  if (regexmov.test(url)) {
+    try {
+      let result = await $.ajax({url: url, datatype: "xml"});
+      var title = $(result).find("h1[itemprop='name']").text().trim();
+      let imdbid = await pulsarr.ImdbidFromTitle(title,1);
+      let movie = await radarr.lookupMovie(imdbid);
+      if (movie) {
+        pulsarr.info(movie);
+      }
+    } catch (err) {
+      pulsarr.init(err);
+    }
+  } else {
+    pulsarr.info("Could not find media. Are you on a valid TV Show or Movie page?");
+  }
+}
+
 getCurrentTabUrl(async (url) => {
     if (pulsarr.isImdb(url)) {
 		loadFromImdbUrl(url);
@@ -968,8 +992,10 @@ getCurrentTabUrl(async (url) => {
 		loadFromRottenUrl(url);
 	} else if (pulsarr.isTMB(url)) {
 		loadFromTMBUrl(url);
+  } else if (pulsarr.isLetter(url)) {
+    loadFromLetterUrl(url);
     } else {
-        pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
+      pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
     }
 
     $('#btmSmConfig').on('click', function() {
