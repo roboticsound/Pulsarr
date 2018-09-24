@@ -52,7 +52,7 @@ const blackhole = {
                 "coverType": "poster",
                 "url": "/img/black-hole-poster.jpg"
             }],
-            "overview": "Oh no! Pulsarr has colapsed into a black hole. Please check your configuration and that you are on a valid IMDB or TVDB page.",
+	    "overview": "Oh no! Pulsarr has collapsed into a black hole. Please check your configuration and that you are on a valid IMDB or TVDB page.",
             "title": "Black Hole",
             "year": 404
         }]
