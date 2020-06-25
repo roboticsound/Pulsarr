@@ -917,9 +917,10 @@ let loadFromRottenUrl = async (url) => {
 	} else if (regexmov.test(url)) {
 		try {
 			let result = await $.ajax({url: url, datatype: "xml"});
-			var title = $(result).find("#movie-title").text().trim();
+			var title = $(result).find(".mop-ratings-wrap h1").text().trim();
 			let imdbid = await pulsarr.ImdbidFromTitle(title,1);
 			let movie = await radarr.lookupMovie(imdbid);
+
 			if (movie) {
 				pulsarr.info(movie);
 			}
