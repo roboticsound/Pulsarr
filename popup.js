@@ -252,10 +252,10 @@ class Pulsarr {
 	}
 
     extractIMDBID(url) {
-        var regex = new RegExp("\/tt\\d{1,7}");
+        var regex = new RegExp("\/tt\\d{1,8}");
         var imdbid = regex.exec(url);
 
-        return (imdbid) ? imdbid[0].slice(1, 10) : "";
+        return (imdbid) ? imdbid[0].slice(1, 11) : "";
     }
 
     extractTVDBID(url) {
@@ -281,7 +281,7 @@ class Pulsarr {
 		var regex = new RegExp("\/tt\\d{1,7}");
 		let imdbid = await regex.exec($(result).find(".result_text").find("a").attr("href"));
 
-		return (imdbid) ? imdbid[0].slice(1, 10) : "";
+		return (imdbid) ? imdbid[0].slice(1, 11) : "";
 
 	}
 	
