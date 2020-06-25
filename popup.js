@@ -278,7 +278,7 @@ class Pulsarr {
 			var url = "http://www.imdb.com/find?s=tt&&ttype=tv&ref_=fn_tv&q=" + title;
 		}
 		let result = await $.ajax({url: url, datatype: "xml"});
-		var regex = new RegExp("\/tt\\d{1,7}");
+		var regex = new RegExp("\/tt\\d{1,8}");
 		let imdbid = await regex.exec($(result).find(".result_text").find("a").attr("href"));
 
 		return (imdbid) ? imdbid[0].slice(1, 11) : "";
