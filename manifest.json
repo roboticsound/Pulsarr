@@ -4,7 +4,7 @@
   "name": "Pulsarr",
   "author": "roboticsound",
   "description": "Add movies/series to Radarr/Sonarr from IMDB and TVDB",
-  "version": "2.2",
+  "version": "2.1.3",
 
   "icons": {
     "16": "/img/icons/pulsarr/16.png",
