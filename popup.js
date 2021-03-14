@@ -100,7 +100,7 @@ class Pulsarr {
 
                 $('#btnExists').on('click', function() {
                     chrome.tabs.create({
-                        url: radarr.constructBaseUrl() + "/movies/" + media.existingSlug
+                        url: radarr.constructBaseUrl() + "/movie/" + media.existingSlug
                     });
                     return false;
                 });
