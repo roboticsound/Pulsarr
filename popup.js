@@ -233,24 +233,24 @@ class Pulsarr {
 
 		return regex.test(url);
 	}
-	
+
 	isRotten(url) {
 		var regex = new RegExp(".*rottentomatoes.com\/");
 
 		return regex.test(url);
 	}
-	
+
 	isTMB(url) {
 		var regex = new RegExp(".*themoviedb.org\/");
 
 		return regex.test(url);
 	}
 
-  isLetter(url) {
-    var regex = new RegExp(".*letterboxd.com\/");
+	isLetter(url) {
+		var regex = new RegExp(".*letterboxd.com\/");
 
-    return regex.test(url);
-  }
+		return regex.test(url);
+	}
 
   extractIMDBID(url) {
     var regex = new RegExp("\/tt\\d{1,7}");
@@ -977,7 +977,7 @@ let loadFromLetterUrl = async (url) => {
       pulsarr.init(err);
     }
   } else {
-    pulsarr.info("Could not find media. Are you on a valid TV Show or Movie page?");
+    pulsarr.info("Could not find media. Are you on a valid Movie page?");
   }
 }
 
@@ -992,8 +992,8 @@ getCurrentTabUrl(async (url) => {
 		loadFromRottenUrl(url);
 	} else if (pulsarr.isTMB(url)) {
 		loadFromTMBUrl(url);
-  } else if (pulsarr.isLetter(url)) {
-    loadFromLetterUrl(url);
+  	} else if (pulsarr.isLetter(url)) {
+    	loadFromLetterUrl(url);
     } else {
       pulsarr.info("Pulsarr does not recognise this as a valid website. Please check if that you are on either IMDB or TVDB.");
     }
