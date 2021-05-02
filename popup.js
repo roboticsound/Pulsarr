@@ -106,9 +106,10 @@ class Pulsarr {
                 });
 
                 $('#btnAdd').on('click', function() {
-                    radarr.addMovie(
+					
+					radarr.addMovie(
                         media.movie.text[0],
-                        $('#lstProfile').val(),
+                        parseInt($('#lstProfile').val()),
                         $('#monitored').prop('checked'),
                         $('#lstMinAvail').val(),
                         false,
@@ -119,7 +120,7 @@ class Pulsarr {
                 $('#btnAddSearch').on('click', function() {
                     radarr.addMovie(
                         media.movie.text[0],
-                        $('#lstProfile').val(),
+                        parseInt($('#lstProfile').val()),
                         $('#monitored').prop('checked'),
                         $('#lstMinAvail').val(),
                         true,
@@ -475,7 +476,7 @@ class RadarrServer extends Server {
             "qualityProfileId": qualityId,
             "titleSlug": movie.titleSlug,
             "images": movie.images,
-            "tmdbid": movie.tmdbId,
+            "tmdbId": movie.tmdbId,
             "rootFolderPath": folderPath,
             "monitored": monitored,
             "minimumAvailability": minAvail,
