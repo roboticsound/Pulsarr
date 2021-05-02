@@ -106,7 +106,7 @@ class Pulsarr {
                 });
 
                 $('#btnAdd').on('click', function() {	
-		   radarr.addMovie(
+					radarr.addMovie(
                         media.movie.text[0],
                         parseInt($('#lstProfile').val()),
                         $('#monitored').prop('checked'),
