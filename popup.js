@@ -105,8 +105,7 @@ class Pulsarr {
                     return false;
                 });
 
-                $('#btnAdd').on('click', function() {
-					
+                $('#btnAdd').on('click', function() {	
 					radarr.addMovie(
                         media.movie.text[0],
                         parseInt($('#lstProfile').val()),
