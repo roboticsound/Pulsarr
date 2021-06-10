@@ -400,6 +400,7 @@ class Server {
                 } else {
                   switch (http.status) {
                     case 400:
+					  console.log(http);
                       reject("Failed to add movie! Please check it is not already in your collection.");
                       break;
                     case 401:
@@ -462,7 +463,7 @@ class RadarrServer extends Server {
         var newMovie = {
             "title": movie.title,
             "year": movie.year,
-            "qualityProfileId": qualityId,
+            "qualityProfileId": parseInt(qualityId),
             "titleSlug": movie.titleSlug,
             "images": movie.images,
             "tmdbid": movie.tmdbId,
@@ -473,6 +474,9 @@ class RadarrServer extends Server {
                 "searchForMovie": addSearch
             }
         };
+
+		console.log("zeadd movie");
+		console.log(newMovie);
 
         this.post("/api/movie", newMovie).then(function(response) {
             radarr.updatePreferences(monitored, qualityId, minAvail, folderPath);
@@ -485,16 +489,22 @@ class RadarrServer extends Server {
         });
     }
 
-    lookupMovie(imdbid) {
+    lookupMovie(imdbid, tvdbid = "") {
         var self = this;
         // antipattern: resolve acts as reject and vice versa
         return new Promise(function(resolve, reject) {
-            if (imdbid === "") {
+			// Cancel movie search if there a tvid. This means the imdb entry related to a valid tv show.
+			// This prevents issues where an imdb show also has a movie entry; e.g. tt6741278.
+			// The initial behavior was "first answer wins". This forces tv show entry over movie.
+            if (imdbid === "" || tvdbid != "") {
                 resolve();
             } else {
                 var existingSlug = self.isExistingMovie(imdbid);
                 var lookup = self.get("/api/movie/lookup", "term=imdb%3A%20" + imdbid);
                 Promise.all([lookup, existingSlug]).then(function(response) {
+					console.log("movie lookup result:");
+					console.log(response);
+					if (response[0].text.length == 0) resolve();
                     reject({"type": "movie", "movie": response[0], "existingSlug": response[1]});
                 }).catch(function(error) {
                     resolve(error);
@@ -627,7 +637,7 @@ class SonarrServer extends Server {
         var newSeries = {
             "title": series.title,
             "year": series.year,
-            "qualityProfileId": qualityId,
+            "qualityProfileId": parseInt(qualityId),
             "seriesType": seriesType,
             "titleSlug": series.titleSlug,
             "images": series.images,
@@ -662,6 +672,9 @@ class SonarrServer extends Server {
                 var existingSlug = self.isExistingSeries(tvdbid);
                 var lookup = self.get("/api/series/lookup", "term=tvdb%3A%20" + tvdbid);
                 Promise.all([lookup, existingSlug]).then(function(response) {
+					console.log("serie lookup result:");
+					console.log(response);
+					if (response[0].text.length == 0) resolve();
                     reject({"type": "series", "series": response[0], "existingSlug": response[1]});
                 }).catch(function(error) {
                     resolve(error);
@@ -825,8 +838,9 @@ let loadFromImdbUrl = async (url) => {
 	try {
 		let imdbid = pulsarr.extractIMDBID(url);
 		let tvdbid = await pulsarr.TvdbidFromImdbid(imdbid);
+		console.log("Extracted imdb id " + imdbid + " tvdbid " + tvdbid);
 
-		Promise.all([radarr.lookupMovie(imdbid), sonarr.lookupSeries(tvdbid)]).then(function(error) {
+		Promise.all([radarr.lookupMovie(imdbid, tvdbid), sonarr.lookupSeries(tvdbid)]).then(function(error) {
 			if (pulsarrConfig.radarr.isEnabled && pulsarrConfig.sonarr.isEnabled) {
 				pulsarr.info(error);
 			} else if (pulsarrConfig.radarr.isEnabled && !pulsarrConfig.sonarr.isEnabled) {
