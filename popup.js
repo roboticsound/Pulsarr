@@ -233,13 +233,13 @@ class Pulsarr {
 
 		return regex.test(url);
 	}
-	
+
 	isRotten(url) {
 		var regex = new RegExp(".*rottentomatoes.com\/");
 
 		return regex.test(url);
 	}
-	
+
 	isTMB(url) {
 		var regex = new RegExp(".*themoviedb.org\/");
 
@@ -247,10 +247,10 @@ class Pulsarr {
 	}
 
     extractIMDBID(url) {
-        var regex = new RegExp("\/tt\\d{1,7}");
+        var regex = new RegExp("\/tt\\d{1,8}");
         var imdbid = regex.exec(url);
 
-        return (imdbid) ? imdbid[0].slice(1, 10) : "";
+        return (imdbid) ? imdbid[0].slice(1) : "";
     }
 
     extractTVDBID(url) {
@@ -265,7 +265,7 @@ class Pulsarr {
 
 		return $(result).find("seriesid").text();
     }
-	
+
 	async ImdbidFromTitle(title,ismovie) {
 		if (ismovie){
 			var url = "http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q=" + title;
@@ -273,13 +273,13 @@ class Pulsarr {
 			var url = "http://www.imdb.com/find?s=tt&&ttype=tv&ref_=fn_tv&q=" + title;
 		}
 		let result = await $.ajax({url: url, datatype: "xml"});
-		var regex = new RegExp("\/tt\\d{1,7}");
+		var regex = new RegExp("\/tt\\d{1,8}");
 		let imdbid = await regex.exec($(result).find(".result_text").find("a").attr("href"));
 
-		return (imdbid) ? imdbid[0].slice(1, 10) : "";
+		return (imdbid) ? imdbid[0].slice(1) : "";
 
 	}
-	
+
     saveSettings() {
         localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
     }
@@ -931,7 +931,7 @@ let loadFromTMBUrl = async (url) => {
 			let imdbid = await pulsarr.ImdbidFromTitle(title,0);
 			let tvdbid = await pulsarr.TvdbidFromImdbid(imdbid);
 			let series = await sonarr.lookupSeries(tvdbid);
-			
+
 			if (series) {
 				pulsarr.info(series);
 			}
