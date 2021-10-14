@@ -233,13 +233,13 @@ class Pulsarr {
 
 		return regex.test(url);
 	}
-	
+
 	isRotten(url) {
 		var regex = new RegExp(".*rottentomatoes.com\/");
 
 		return regex.test(url);
 	}
-	
+
 	isTMB(url) {
 		var regex = new RegExp(".*themoviedb.org\/");
 
@@ -265,7 +265,7 @@ class Pulsarr {
 
 		return $(result).find("seriesid").text();
     }
-	
+
 	async ImdbidFromTitle(title,ismovie) {
 		if (ismovie){
 			var url = "http://www.imdb.com/find?s=tt&ttype=ft&ref_=fn_ft&q=" + title;
@@ -279,7 +279,7 @@ class Pulsarr {
 		return (imdbid) ? imdbid[0].slice(1, 10) : "";
 
 	}
-	
+
     saveSettings() {
         localStorage.setItem("pulsarrConfig", JSON.stringify(pulsarrConfig));
     }
@@ -931,7 +931,7 @@ let loadFromTMBUrl = async (url) => {
 			let imdbid = await pulsarr.ImdbidFromTitle(title,0);
 			let tvdbid = await pulsarr.TvdbidFromImdbid(imdbid);
 			let series = await sonarr.lookupSeries(tvdbid);
-			
+
 			if (series) {
 				pulsarr.info(series);
 			}
