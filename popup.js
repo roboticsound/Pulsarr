@@ -37,6 +37,7 @@ var pulsarrConfig = {
 			"seasonFolder": false,
 			"seriesType": "standard",
             "qualityProfileId": 1,
+			"languageProfileId": 1,
             "folderPath": ""
 		}
 	}
@@ -137,6 +138,7 @@ class Pulsarr {
                 $("#optMonitored").removeClass("hidden");
                 $("#optSeasonFolder").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
+				$("#optLangProfile").removeClass("hidden");
                 $("#optFolderPath").removeClass("hidden");
                 $("#optSeriesType").removeClass("hidden");
                 $('#lblAdd').text("Add Series");
@@ -145,6 +147,7 @@ class Pulsarr {
                 $('#description').html(media.series.text[0].overview);
                 if (media.series.status == 200) {
                     sonarr.profilesById();
+					sonarr.langprofilesById();
                     sonarr.folderPathsByPath();
                     sonarr.restoreSettings();
                 }
@@ -154,6 +157,7 @@ class Pulsarr {
                     $("#optMonitored").addClass("hidden");
                     $("#optSeasonFolder").addClass("hidden");
                     $("#optProfile").addClass("hidden");
+					$("#optLangProfile").addClass("hidden");
                     $("#optFolderPath").addClass("hidden");
                     $("#optSeriesType").addClass("hidden");
                     $('#btnExists').removeClass('hidden');
@@ -175,6 +179,7 @@ class Pulsarr {
                     sonarr.addSeries(
                         media.series.text[0],
                         $('#lstProfile').val(),
+                        $('#lstLangProfile').val(),
                         $('#lstSeriesType').val(),
                         $('#monitored').prop('checked'),
                         $('#seasonFolder').prop('checked'),
@@ -187,6 +192,7 @@ class Pulsarr {
                     sonarr.addSeries(
                         media.series.text[0],
                         $('#lstProfile').val(),
+						$('#lstLangProfile').val(),
                         $('#lstSeriesType').val(),
                         $('#monitored').prop('checked'),
                         $('#seasonFolder').prop('checked'),
@@ -341,7 +347,7 @@ class Server {
     getPath() {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.get("/api/rootfolder", "").then(function(response) {
+            self.get("/api/v3/rootfolder", "").then(function(response) {
                 resolve(response.text[0].path);
             });
         });
@@ -430,7 +436,7 @@ class Server {
                 console.log(http);
                 reject(Error("Network Error"));
             };
-
+			http.setRequestHeader("Content-Type", "application/json");
             http.send(JSON.stringify(params));
         });
     }
@@ -487,7 +493,7 @@ class RadarrServer extends Server {
 
 		console.log("zeadd movie");
 		console.log(newMovie);
-        this.post("/api/movie", newMovie).then(function(response) {
+        this.post("/api/v3/movie", newMovie).then(function(response) {
             radarr.updatePreferences(monitored, qualityId, minAvail, folderPath);
             pulsarr.info("Movie added to Radarr!");
             setTimeout(function() {
@@ -509,7 +515,7 @@ class RadarrServer extends Server {
                 resolve();
             } else {
                 var existingSlug = self.isExistingMovie(imdbid);
-                var lookup = self.get("/api/movie/lookup", "term=imdb%3A%20" + imdbid);
+                var lookup = self.get("/api/v3/movie/lookup", "term=imdb%3A%20" + imdbid);
                 Promise.all([lookup, existingSlug]).then(function(response) {
 					console.log("movie lookup result:");
 					console.log(response);
@@ -531,7 +537,7 @@ class RadarrServer extends Server {
 			if (title === "") {
 				resolve();
 			} else {
-				var lookup = await self.get("/api/movie/lookup", "term=" + searchString)
+				var lookup = await self.get("/api/v3/movie/lookup", "term=" + searchString)
 				var existingSlug = await self.isExistingMovieByTitleSlug(lookup.text[0].titleSlug)
 				if (lookup) {
 					reject({"type": "movie", "movie": lookup, "existingSlug": existingSlug});
@@ -544,7 +550,7 @@ class RadarrServer extends Server {
 
     async profilesById() {
 		try {
-			let profiles = await this.get("/api/profile", "");
+			let profiles = await this.get("/api/v3/qualityProfile", "");
 
 			for (let i = 0; i < profiles.text.length; i++) {
                 $('#lstProfile')
@@ -561,7 +567,7 @@ class RadarrServer extends Server {
 
     async folderPathsByPath() {
 		try {
-			let folderPaths = await this.get("/api/rootfolder", "")
+			let folderPaths = await this.get("/api/v3/rootfolder", "")
 
 			for (var i = 0; i < folderPaths.text.length; i++) {
                 $('#lstFolderPath')
@@ -579,7 +585,7 @@ class RadarrServer extends Server {
     isExistingMovie(imdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.get("/api/movie", "").then(function(response) {
+            self.get("/api/v3/movie", "").then(function(response) {
                 for (var i = 0; i < response.text.length; i++) {
                     if (imdbid === response.text[i].imdbId) {
                         resolve(response.text[i].titleSlug);
@@ -595,7 +601,7 @@ class RadarrServer extends Server {
 	isExistingMovieByTitleSlug(titleSlug) {
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			self.get("/api/movie", "").then(function(response) {
+			self.get("/api/v3/movie", "").then(function(response) {
 				for (var i = 0; i < response.text.length; i++) {
 					if (titleSlug === response.text[i].titleSlug) {
 						resolve(response.text[i].titleSlug);
@@ -622,10 +628,11 @@ class SonarrServer extends Server {
         );
     }
 
-    updatePreferences(monitored, seasonFolder, qualityId, seriesType, folderPath) {
+    updatePreferences(monitored, seasonFolder, qualityId, langId, seriesType, folderPath) {
         pulsarrConfig.sonarr.preferences.monitored = monitored;
         pulsarrConfig.sonarr.preferences.seasonFolder = seasonFolder;
         pulsarrConfig.sonarr.preferences.qualityProfileId = qualityId;
+		pulsarrConfig.sonarr.preferences.LanguageProfileId = langId;
         pulsarrConfig.sonarr.preferences.seriesType = seriesType;
         pulsarrConfig.sonarr.preferences.folderPath = folderPath;
 
@@ -646,20 +653,21 @@ class SonarrServer extends Server {
         $('#lstSeriesType').val(pulsarrConfig.sonarr.preferences.seriesType);
     }
 
-    addSeries(series, qualityId, seriesType, monitored, seasonFolder, addSearch, folderPath) {
+    addSeries(series, qualityId, langId, seriesType, monitored, seasonFolder, addSearch, folderPath) {
         pulsarr.loading();
 
         var newSeries = {
             "title": series.title,
             "year": series.year,
             "qualityProfileId": qualityId,
+			"languageProfileId": langId,
             "seriesType": seriesType,
             "titleSlug": series.titleSlug,
             "images": series.images,
             "tvdbId": series.tvdbId,
             "rootFolderPath": folderPath,
             "monitored": monitored,
-            "seasonFolder": seasonFolder,
+			"seasonFolder": seasonFolder,
             "addOptions": {
                 "ignoreEpisodesWithFiles": false,
                 "ignoreEpisodesWithoutFiles": false,
@@ -667,8 +675,8 @@ class SonarrServer extends Server {
             }
         };
 
-        this.post("/api/series", newSeries).then(function(response) {
-            sonarr.updatePreferences(monitored, seasonFolder, qualityId, seriesType, folderPath);
+        this.post("/api/v3/series", newSeries).then(function(response) {
+            sonarr.updatePreferences(monitored, seasonFolder, qualityId, langId, seriesType, folderPath);
             pulsarr.info("Series added to Sonarr!");
             setTimeout(function() {
                 window.close();
@@ -686,7 +694,7 @@ class SonarrServer extends Server {
                 resolve();
             } else {
                 var existingSlug = self.isExistingSeries(tvdbid);
-                var lookup = self.get("/api/series/lookup", "term=tvdb%3A%20" + tvdbid);
+                var lookup = self.get("/api/v3/series/lookup", "term=tvdb%3A%20" + tvdbid);
                 Promise.all([lookup, existingSlug]).then(function(response) {
 					console.log("serie lookup result:");
 					console.log(response);
@@ -708,7 +716,7 @@ class SonarrServer extends Server {
 			if (title === "") {
 				resolve();
 			} else {
-				var lookup = await self.get("/api/series/lookup", "term=" + searchString)
+				var lookup = await self.get("/api/v3/series/lookup", "term=" + searchString)
 				var existingSlug = await self.isExistingSeriesByTitleSlug(lookup.text[0].titleSlug)
 				if (lookup) {
 					reject({"type": "series", "series": lookup, "existingSlug": existingSlug});
@@ -721,7 +729,7 @@ class SonarrServer extends Server {
 
     async profilesById() {
 		try {
-			let profiles = await this.get("/api/profile", "");
+			let profiles = await this.get("/api/v3/qualityProfile", "");
 
 			for (var i = 0; i < profiles.text.length; i++) {
                 $('#lstProfile')
@@ -736,9 +744,26 @@ class SonarrServer extends Server {
 		}
     }
 
+    async langprofilesById() {
+		try {
+			let langprofiles = await this.get("/api/v3/languageprofile", "");
+
+			for (var i = 0; i < langprofiles.text.length; i++) {
+                $('#lstLangProfile')
+                    .append($('<option>', { value: langprofiles.text[i].id })
+                    .text(langprofiles.text[i].name));
+            }
+            if (pulsarrConfig.sonarr.preferences.LanguageProfileId <= $('#lstLangProfile').children('option').length) {
+                $('#lstLangProfile').prop('selectedIndex', pulsarrConfig.sonarr.preferences.LanguageProfileId - 1);
+            }
+		} catch (err) {
+			pulsarr.info("langprofilesById Failed! " + err);
+		}
+    }	
+
     async folderPathsByPath() {
 		try {
-			let folderPaths = await this.get("/api/rootfolder", "");
+			let folderPaths = await this.get("/api/v3/rootfolder", "");
 
             for (var i = 0; i < folderPaths.text.length; i++) {
                 $('#lstFolderPath')
@@ -756,7 +781,7 @@ class SonarrServer extends Server {
     async isExistingSeries(tvdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.get("/api/series", "").then(function(response) {
+            self.get("/api/v3/series", "").then(function(response) {
                 for (var i = 0; i < response.text.length; i++) {
                     if (tvdbid == response.text[i].tvdbId) {
                         resolve(response.text[i].titleSlug);
@@ -772,7 +797,7 @@ class SonarrServer extends Server {
 	isExistingSeriesByTitleSlug(titleSlug) {
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			self.get("/api/series", "").then(function(response) {
+			self.get("/api/v3/series", "").then(function(response) {
 				for (var i = 0; i < response.text.length; i++) {
 					if (titleSlug === response.text[i].titleSlug) {
 						resolve(response.text[i].titleSlug);
@@ -1036,7 +1061,7 @@ getCurrentTabUrl(async (url) => {
 jQuery.fn.changepanel = function(media) {
     for (var i = 0; i < media.images.length; i++) {
         if (media.images[i].coverType === "poster") {
-            $('#image').attr("src", media.images[i].url);
+            $('#image').attr("src", media.images[i].remoteUrl);
         }
     }
     $('#title').html(media.title + "<span> (" + media.year + ")</span>");
