@@ -37,7 +37,7 @@ var pulsarrConfig = {
 			"seasonFolder": false,
 			"seriesType": "standard",
             "qualityProfileId": 1,
-			"languageProfileId": 1,
+            "languageProfileId": 1,
             "folderPath": ""
 		}
 	}
@@ -138,7 +138,7 @@ class Pulsarr {
                 $("#optMonitored").removeClass("hidden");
                 $("#optSeasonFolder").removeClass("hidden");
                 $("#optProfile").removeClass("hidden");
-				$("#optLangProfile").removeClass("hidden");
+                $("#optLangProfile").removeClass("hidden");
                 $("#optFolderPath").removeClass("hidden");
                 $("#optSeriesType").removeClass("hidden");
                 $('#lblAdd').text("Add Series");
@@ -157,7 +157,7 @@ class Pulsarr {
                     $("#optMonitored").addClass("hidden");
                     $("#optSeasonFolder").addClass("hidden");
                     $("#optProfile").addClass("hidden");
-					$("#optLangProfile").addClass("hidden");
+                    $("#optLangProfile").addClass("hidden");
                     $("#optFolderPath").addClass("hidden");
                     $("#optSeriesType").addClass("hidden");
                     $('#btnExists').removeClass('hidden');
@@ -192,7 +192,7 @@ class Pulsarr {
                     sonarr.addSeries(
                         media.series.text[0],
                         $('#lstProfile').val(),
-						$('#lstLangProfile').val(),
+                        $('#lstLangProfile').val(),
                         $('#lstSeriesType').val(),
                         $('#monitored').prop('checked'),
                         $('#seasonFolder').prop('checked'),
@@ -660,7 +660,7 @@ class SonarrServer extends Server {
             "title": series.title,
             "year": series.year,
             "qualityProfileId": qualityId,
-			"languageProfileId": langId,
+            "languageProfileId": langId,
             "seriesType": seriesType,
             "titleSlug": series.titleSlug,
             "images": series.images,
