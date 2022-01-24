@@ -981,7 +981,7 @@ let loadFromTMBUrl = async (url) => {
 	if (regextv.test(url)) {
 		try {
 			let result = await $.ajax({url: url, datatype: "xml"});
-			var title = $(result).find("div[class='title ott_true']").find("h2").find("a").text().trim().replace('&','and');
+			var title = $(result).find("section[id='original_header']").find("h2").find("a").text().trim().replace('&','and');
 			var date = $(result).find(".release_date").text().trim();
 			title = title + " " + date;
 			let imdbid = await pulsarr.ImdbidFromTitle(title,0);
