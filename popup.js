@@ -331,7 +331,7 @@ class Server {
     getPath() {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.get("/api/rootfolder", "").then(function(response) {
+            self.get("/api/v3/rootfolder", "").then(function(response) {
                 resolve(response.text[0].path);
             });
         });
@@ -475,10 +475,9 @@ class RadarrServer extends Server {
             }
         };
 
-		console.log("zeadd movie");
 		console.log(newMovie);
 
-        this.post("/api/movie", newMovie).then(function(response) {
+        this.post("/api/v3/movie", newMovie).then(function(response) {
             radarr.updatePreferences(monitored, qualityId, minAvail, folderPath);
             pulsarr.info("Movie added to Radarr!");
             setTimeout(function() {
@@ -500,7 +499,7 @@ class RadarrServer extends Server {
                 resolve();
             } else {
                 var existingSlug = self.isExistingMovie(imdbid);
-                var lookup = self.get("/api/movie/lookup", "term=imdb%3A%20" + imdbid);
+                var lookup = self.get("/api/v3/movie/lookup", "term=imdb%3A%20" + imdbid);
                 Promise.all([lookup, existingSlug]).then(function(response) {
 					console.log("movie lookup result:");
 					console.log(response);
@@ -522,7 +521,7 @@ class RadarrServer extends Server {
 			if (title === "") {
 				resolve();
 			} else {
-				var lookup = await self.get("/api/movie/lookup", "term=" + searchString)
+				var lookup = await self.get("/api/v3/movie/lookup", "term=" + searchString)
 				var existingSlug = await self.isExistingMovieByTitleSlug(lookup.text[0].titleSlug)
 				if (lookup) {
 					reject({"type": "movie", "movie": lookup, "existingSlug": existingSlug});
@@ -535,7 +534,7 @@ class RadarrServer extends Server {
 
     async profilesById() {
 		try {
-			let profiles = await this.get("/api/profile", "");
+			let profiles = await this.get("/api/v3/qualityProfile", "");
 
 			for (let i = 0; i < profiles.text.length; i++) {
                 $('#lstProfile')
@@ -552,7 +551,7 @@ class RadarrServer extends Server {
 
     async folderPathsByPath() {
 		try {
-			let folderPaths = await this.get("/api/rootfolder", "")
+			let folderPaths = await this.get("/api/v3/rootfolder", "")
 
 			for (var i = 0; i < folderPaths.text.length; i++) {
                 $('#lstFolderPath')
@@ -570,7 +569,7 @@ class RadarrServer extends Server {
     isExistingMovie(imdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.get("/api/movie", "").then(function(response) {
+            self.get("/api/v3/movie", "").then(function(response) {
                 for (var i = 0; i < response.text.length; i++) {
                     if (imdbid === response.text[i].imdbId) {
                         resolve(response.text[i].titleSlug);
@@ -586,7 +585,7 @@ class RadarrServer extends Server {
 	isExistingMovieByTitleSlug(titleSlug) {
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			self.get("/api/movie", "").then(function(response) {
+			self.get("/api/v3/movie", "").then(function(response) {
 				for (var i = 0; i < response.text.length; i++) {
 					if (titleSlug === response.text[i].titleSlug) {
 						resolve(response.text[i].titleSlug);
@@ -651,7 +650,7 @@ class SonarrServer extends Server {
             }
         };
 
-        this.post("/api/series", newSeries).then(function(response) {
+        this.post("/api/v3/series", newSeries).then(function(response) {
             sonarr.updatePreferences(monitored, qualityId, seriesType, folderPath);
             pulsarr.info("Series added to Sonarr!");
             setTimeout(function() {
@@ -670,7 +669,7 @@ class SonarrServer extends Server {
                 resolve();
             } else {
                 var existingSlug = self.isExistingSeries(tvdbid);
-                var lookup = self.get("/api/series/lookup", "term=tvdb%3A%20" + tvdbid);
+                var lookup = self.get("/api/v3/series/lookup", "term=tvdb%3A%20" + tvdbid);
                 Promise.all([lookup, existingSlug]).then(function(response) {
 					console.log("serie lookup result:");
 					console.log(response);
@@ -692,7 +691,7 @@ class SonarrServer extends Server {
 			if (title === "") {
 				resolve();
 			} else {
-				var lookup = await self.get("/api/series/lookup", "term=" + searchString)
+				var lookup = await self.get("/api/v3/series/lookup", "term=" + searchString)
 				var existingSlug = await self.isExistingSeriesByTitleSlug(lookup.text[0].titleSlug)
 				if (lookup) {
 					reject({"type": "series", "series": lookup, "existingSlug": existingSlug});
@@ -705,7 +704,7 @@ class SonarrServer extends Server {
 
     async profilesById() {
 		try {
-			let profiles = await this.get("/api/profile", "");
+			let profiles = await this.get("/api/v3/qualityProfile", "");
 
 			for (var i = 0; i < profiles.text.length; i++) {
                 $('#lstProfile')
@@ -722,7 +721,7 @@ class SonarrServer extends Server {
 
     async folderPathsByPath() {
 		try {
-			let folderPaths = await this.get("/api/rootfolder", "");
+			let folderPaths = await this.get("/api/v3/rootfolder", "");
 
             for (var i = 0; i < folderPaths.text.length; i++) {
                 $('#lstFolderPath')
@@ -740,7 +739,7 @@ class SonarrServer extends Server {
     async isExistingSeries(tvdbid) {
         var self = this;
         return new Promise(function(resolve, reject) {
-            self.get("/api/series", "").then(function(response) {
+            self.get("/api/v3/series", "").then(function(response) {
                 for (var i = 0; i < response.text.length; i++) {
                     if (tvdbid == response.text[i].tvdbId) {
                         resolve(response.text[i].titleSlug);
@@ -756,7 +755,7 @@ class SonarrServer extends Server {
 	isExistingSeriesByTitleSlug(titleSlug) {
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			self.get("/api/series", "").then(function(response) {
+			self.get("/api/v3/series", "").then(function(response) {
 				for (var i = 0; i < response.text.length; i++) {
 					if (titleSlug === response.text[i].titleSlug) {
 						resolve(response.text[i].titleSlug);
@@ -996,9 +995,11 @@ getCurrentTabUrl(async (url) => {
 });
 
 jQuery.fn.changepanel = function(media) {
+	console.log("media: " + media)
+
     for (var i = 0; i < media.images.length; i++) {
         if (media.images[i].coverType === "poster") {
-            $('#image').attr("src", media.images[i].url);
+            $('#image').attr("src", media.images[i].remoteUrl);
         }
     }
     $('#title').html(media.title + "<span> (" + media.year + ")</span>");
