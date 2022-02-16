@@ -389,6 +389,7 @@ class Server {
             http.open("POST", url, true);
             if (self.auth == "true") http.setRequestHeader("Authorization", "Basic " + btoa(self.user + ":" + self.password));
             http.setRequestHeader("X-Api-Key", self.apikey);
+			http.setRequestHeader('Content-Type', 'application/json');
 
             http.onload = function() {
                 if (http.status === 201) {
@@ -475,6 +476,7 @@ class RadarrServer extends Server {
             }
         };
 
+		console.log("Add movie");
 		console.log(newMovie);
 
         this.post("/api/v3/movie", newMovie).then(function(response) {
@@ -484,6 +486,7 @@ class RadarrServer extends Server {
                 window.close();
             }, 1500);
         }).catch(function(error) {
+			console.log("Error: " + error)
             pulsarr.info(error);
         });
     }
