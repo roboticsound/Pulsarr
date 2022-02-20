@@ -134,7 +134,8 @@ class Pulsarr {
                 $('#serverHome').attr("href", sonarr.constructBaseUrl());
                 $("#optSmConfig").removeClass("hidden");
                 $("#optMonitored").removeClass("hidden");
-                $("#optProfile").removeClass("hidden");
+				$("#optProfile").removeClass("hidden");
+                $("#optLanguage").removeClass("hidden");
                 $("#optFolderPath").removeClass("hidden");
                 $("#optSeriesType").removeClass("hidden");
                 $('#lblAdd').text("Add Series");
@@ -144,6 +145,7 @@ class Pulsarr {
                 if (media.series.status == 200) {
                     sonarr.profilesById();
                     sonarr.folderPathsByPath();
+					sonarr.languageById();
                     sonarr.restoreSettings();
                 }
                 $('body').changepanel(media.series.text[0]);
@@ -151,6 +153,7 @@ class Pulsarr {
                 if (media.existingSlug !== "") {
                     $("#optMonitored").addClass("hidden");
                     $("#optProfile").addClass("hidden");
+					$("#optLanguage").removeClass("hidden");
                     $("#optFolderPath").addClass("hidden");
                     $("#optSeriesType").addClass("hidden");
                     $('#btnExists').removeClass('hidden');
@@ -175,7 +178,8 @@ class Pulsarr {
                         $('#lstSeriesType').val(),
                         $('#monitored').prop('checked'),
                         false,
-                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
+                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath,
+						$('#lstLanguage').val()
                     );
                 });
 
@@ -186,7 +190,8 @@ class Pulsarr {
                         $('#lstSeriesType').val(),
                         $('#monitored').prop('checked'),
                         true,
-                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath
+                        $('#lstFolderPath').val() ? $('#lstFolderPath').val() : addPath,
+						$('#lstLanguage').val()
                     );
                 });
                 break;
@@ -633,13 +638,14 @@ class SonarrServer extends Server {
         $('#lstSeriesType').val(pulsarrConfig.sonarr.preferences.seriesType);
     }
 
-    addSeries(series, qualityId, seriesType, monitored, addSearch, folderPath) {
+    addSeries(series, qualityId, seriesType, monitored, addSearch, folderPath, languageId) {
         pulsarr.loading();
 
         var newSeries = {
             "title": series.title,
             "year": series.year,
             "qualityProfileId": parseInt(qualityId),
+			"languageProfileId": languageId,
             "seriesType": seriesType,
             "titleSlug": series.titleSlug,
             "images": series.images,
@@ -652,6 +658,8 @@ class SonarrServer extends Server {
                 "searchForMissingEpisodes": addSearch
             }
         };
+		console.log("Adding serie");
+		console.log(newSeries);
 
         this.post("/api/v3/series", newSeries).then(function(response) {
             sonarr.updatePreferences(monitored, qualityId, seriesType, folderPath);
@@ -703,6 +711,23 @@ class SonarrServer extends Server {
 				}
 			};
 		});
+	}
+
+	async languageById() {
+		try {
+			let profiles = await this.get("/api/v3/languageProfile", "");
+
+			for (var i = 0; i < profiles.text.length; i++) {
+                $('#lstLanguage')
+                    .append($('<option>', { value: profiles.text[i].id })
+                    .text(profiles.text[i].name));
+            }
+            if (pulsarrConfig.sonarr.preferences.qualityProfileId <= $('#lstLanguage').children('option').length) {
+                $('#lstLanguage').prop('selectedIndex', pulsarrConfig.sonarr.preferences.qualityProfileId - 1);
+            }
+		} catch (err) {
+			pulsarr.info("languageById Failed! " + err);
+		}
 	}
 
     async profilesById() {
