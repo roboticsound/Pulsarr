@@ -18,9 +18,3 @@ Browser extension (currently [Chrome](https://chrome.google.com/webstore/detail/
 
 Bug Reports/Feature Requests https://github.com/roboticsound/Pulsarr
 
-## Donate
-If you would like to support continued development or just say thank you!
-
-BTC: 1GvgGUzYuir4wATG1N9SmAmPzJ1aYND2A
-
-ETC: 0x14809C778Db6DFF7154A4CDB58cb3C5D8F29efe2

@@ -169,8 +169,8 @@ $('#save').click(function() {
 function testConfig(radarr, sonarr) {
 	if (radarr || sonarr) {
 		var testServers = [];
-		if (radarr) {testServers.push(radarrServer.get("/api/system/status"));}
-		if (sonarr) {testServers.push(sonarrServer.get("/api/system/status"));}
+		if (radarr) {testServers.push(radarrServer.get("/api/v3/system/status"));}
+		if (sonarr) {testServers.push(sonarrServer.get("/api/v3/system/status"));}
 		Promise.all(testServers).then(function(response) {
 			saveConfig();
 			$("#popup").stop(true).fadeTo('fast', 1);
